@@ -25,7 +25,15 @@ hs_err_pid*
 "/src/Bootstrap Server/Java"/*.class
 "/src"/*.class
 
+## File-based project format
+*.ipr
+*.iws
+*.iml
+*target
 
+## Additional for IntelliJ
 /out/
 /.idea/*
-*.iml
+
+.DS_Store
+.settings/
