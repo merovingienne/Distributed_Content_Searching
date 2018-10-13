@@ -1,5 +1,6 @@
+package org.altumtek;
+
 import java.io.BufferedReader;
-import java.io.Console;
 import java.io.IOException;
 import java.io.InputStreamReader;
 
@@ -24,7 +25,7 @@ public class EchoTest {
 //        }
         BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
 
-        while (running){
+        while (running) {
             System.out.print(">>> ");
             try {
 //            	input = console.readLine();
@@ -33,7 +34,7 @@ public class EchoTest {
                 e.printStackTrace();
             }
 
-            if (input.equalsIgnoreCase("end")){
+            if (input.equalsIgnoreCase("end")) {
                 running = false;
                 System.out.println("Shutting down test.");
             } else {

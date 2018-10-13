@@ -1,3 +1,5 @@
+package org.altumtek;
+
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
@@ -7,7 +9,7 @@ import java.net.SocketException;
 /**
  * Echo Server
  * Echoes back the message sent.
- *
+ * <p>
  * Created by chanuka on 10/12/18.
  */
 public class EchoServer extends Thread {
