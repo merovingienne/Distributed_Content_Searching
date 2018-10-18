@@ -2,12 +2,6 @@ package org.altumtek.networkmanager;
 
 public class Gossip {
 
-    private NetworkOperations networkOperations;
-
-    Gossip (NetworkOperations networkOperations) {
-        this.networkOperations = networkOperations;
-    }
-
     public void sendGossipRequest () {
         // Todo send a gossibp request
     }
