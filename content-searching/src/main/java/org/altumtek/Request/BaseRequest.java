@@ -10,7 +10,7 @@ import java.util.UUID;
  * BaseRequest
  * Base class for different request types.
  * Wraps UDP DatagramPacket class.
- *
+ * <p>
  * Created by chanuka on 10/14/18.
  */
 public abstract class BaseRequest {
@@ -24,12 +24,12 @@ public abstract class BaseRequest {
     protected HashMap<String, String> data;
     protected boolean dataReady = false;
 
-    BaseRequest(){
+    BaseRequest() {
         this.identifier = UUID.randomUUID();
     }
 
 
-    public void serialize(){
+    public void serialize() {
         // create packet data
         String serializedData = " "; // space between msg length and rest of msg
 
@@ -40,13 +40,13 @@ public abstract class BaseRequest {
                 .concat(serializationUtil("type", true, type.name()))
                 .concat(serializationUtil("senderIP", false, senderIP.getHostAddress()))
                 .concat(serializationUtil("senderPort", false, Integer.toString(senderPort)))
-                .concat(serializationUtil("hopCount", false, Integer.toString(senderPort)));
+                .concat(serializationUtil("hopCount", false, Integer.toString(hopCount)));
 
 
         // Serialize custom data as "key:value"
-        for (String key : data.keySet()){
+        for (String key : data.keySet()) {
             String keyVal = serializationUtil(key, true, data.get(key));
-            if ((serializedData.getBytes().length + keyVal.getBytes().length) < 254){
+            if ((serializedData.getBytes().length + keyVal.getBytes().length) < 254) {
                 serializedData.concat(keyVal);
             }
         }
@@ -61,7 +61,7 @@ public abstract class BaseRequest {
         this.dataReady = true;
     }
 
-    public void deserialize(DatagramPacket newPacket){
+    public void deserialize(DatagramPacket newPacket) {
         // TODO   Recreate a request from new incoming packet
     }
 
@@ -74,8 +74,8 @@ public abstract class BaseRequest {
      * @param socket
      * @throws Exception
      */
-    public void send(InetAddress IP, int port, DatagramSocket socket) throws Exception{
-        if (dataReady){
+    public void send(InetAddress IP, int port, DatagramSocket socket) throws Exception {
+        if (dataReady) {
             this.packet.setAddress(IP);
             this.packet.setPort(port);
             socket.send(this.packet);
@@ -93,7 +93,7 @@ public abstract class BaseRequest {
      * @param socket
      * @throws Exception
      */
-    public void forward(InetAddress IP, int port, DatagramSocket socket) throws Exception{
+    public void forward(InetAddress IP, int port, DatagramSocket socket) throws Exception {
         this.increaseHopCount();
         this.send(IP, port, socket);
     }
@@ -102,13 +102,13 @@ public abstract class BaseRequest {
      * Increase hop count when going through
      * an intermediary node.
      */
-    public void increaseHopCount(){
-        this.hopCount +=1;
+    public void increaseHopCount() {
+        this.hopCount += 1;
     }
 
     /**
      * Util method to create serialized data string components.
-     *
+     * <p>
      * Custom data follows the format "key:value".
      *
      * @param key
@@ -116,8 +116,8 @@ public abstract class BaseRequest {
      * @param value
      * @return
      */
-    private String serializationUtil(String key, boolean includeKey, String value){
-        if (includeKey){
+    private String serializationUtil(String key, boolean includeKey, String value) {
+        if (includeKey) {
             return " " + key + ":" + value;
         }
         return " " + value;
@@ -128,7 +128,7 @@ public abstract class BaseRequest {
      *
      * @return
      */
-    public String getID(){
+    public String getID() {
         return this.identifier.toString();
     }
 

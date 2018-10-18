@@ -12,18 +12,18 @@ public class NetworkManager implements NetworkOperations {
 
     private LinkedList<String> messageIds; //already received messages
 
-    private NetworkManager () {
+    private NetworkManager() {
     }
 
-    public static NetworkManager getInstance () {
+    public static NetworkManager getInstance() {
         if (networkManager != null) {
             return networkManager;
         }
         networkManager = new NetworkManager();
-        return  networkManager;
+        return networkManager;
     }
 
-    public void decodeMessage (BaseRequest request) {
+    public void decodeMessage(BaseRequest request) {
         if (messageIds.contains(request.getID())) {
             // TODO message has already reecived
             return;
@@ -44,11 +44,11 @@ public class NetworkManager implements NetworkOperations {
         return routeTable;
     }
 
-    public void connectNetwork () {
+    public void connectNetwork() {
         // Todo create network connect message send to UDP
     }
 
-    public void leaveNetwork () {
+    public void leaveNetwork() {
 
     }
 
