@@ -69,14 +69,15 @@ public class NetworkManager implements NetworkOperations {
 
     }
 
-    /**
-     * Returns the {@link InetAddress IP Address} of the Node.
-     * <p>
-     * Works only for Linux and Windows
-     *
-     * @return the IP address of the node
-     * @throws Exception
-     */
+    public InetAddress getIpAddress() {
+        return ipAddress;
+    }
+
+    public int getPort() {
+        return port;
+    }
+
+    // Returns the IP Address of the Node, works only for Linux and Windows
     private InetAddress findIP() throws Exception {
         try (final DatagramSocket socket = new DatagramSocket()) {
             socket.connect(InetAddress.getByName("8.8.8.8"), 10002);

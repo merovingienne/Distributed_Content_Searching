@@ -3,44 +3,35 @@ package org.altumtek.communication;
 import org.altumtek.Request.BaseRequest;
 import org.altumtek.Request.HeartbeatRequest;
 import org.altumtek.networkmanager.NetworkManager;
-import org.altumtek.networkmanager.RouteTable;
 
-import java.util.Timer;
-import java.util.TimerTask;
+import java.net.DatagramSocket;
+import java.net.InetAddress;
 
 /**
- * Sends a Heart Beat to the neighbours
+ * Sends a Heart Beat to the specified neighbour with given
+ * {@link #receiverIP} and {@link #receiverPort}
  */
-public class HeartBeat extends TimerTask {
+public class HeartBeat extends Thread {
 
-//    private RouteTable routeTable; FIXME don't get the routing table like this because it will be keep updating (because of gossiping)
+    private InetAddress receiverIP;
+    private int receiverPort;
 
-    private final static int PERIOD = 5000;
-
-    public void sendHeartBeat() {
-        for (RouteTable.Node node : NetworkManager.getInstance().getRouteTable().getNeighbourList()) {
-            new Thread(() -> {
-                try {
-                    BaseRequest hb = new HeartbeatRequest();
-                    hb.serialize();
-//                        hb.send(node.ip, node.port, new DatagramSocket()); todo
-
-                } catch (Exception e) {
-                    //TODO log
-                    e.printStackTrace();
-                }
-            }).start();
-        }
+    public HeartBeat(InetAddress receiverIP, int receiverPort) {
+        this.receiverIP = receiverIP;
+        this.receiverPort = receiverPort;
     }
 
+    @Override
     public void run() {
-        sendHeartBeat();
-    }
+        try {
+            BaseRequest hb = new HeartbeatRequest(NetworkManager.getInstance().getIpAddress(),
+                    NetworkManager.getInstance().getPort());
+            hb.serialize();
+            hb.send(receiverIP, receiverPort, new DatagramSocket());
 
-    public static void main(String[] args) {
-        Timer t = new Timer();
-        //schedule instead of scheduleAtFixedRate because it is ok getting somewhat delayed due to GC
-        t.schedule(new HeartBeat(), 0, PERIOD);
-
+        } catch (Exception e) {
+            //TODO log
+            e.printStackTrace();
+        }
     }
 }

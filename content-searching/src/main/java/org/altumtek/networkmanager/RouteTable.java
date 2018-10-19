@@ -1,5 +1,6 @@
 package org.altumtek.networkmanager;
 
+import java.net.InetAddress;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -18,10 +19,10 @@ public class RouteTable {
     public static class Node {
 
         public boolean primary;
-        public String ip;
+        public InetAddress ip;
         public int port;
 
-        public Node(boolean primary, String ip, int port) {
+        public Node(boolean primary, InetAddress ip, int port) {
             this.primary = primary;
             this.ip = ip;
             this.port = port;
