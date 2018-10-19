@@ -2,12 +2,16 @@ package org.altumtek.networkmanager;
 
 import org.altumtek.Request.BaseRequest;
 
+import java.net.DatagramSocket;
+import java.net.InetAddress;
+import java.net.SocketException;
+import java.net.UnknownHostException;
 import java.util.LinkedList;
 
 public class NetworkManager implements NetworkOperations {
 
     private static NetworkManager networkManager;
-    private RouteTable routeTable;
+    private RouteTable routeTable = new RouteTable();
     private Gossip gossip;
 
     private LinkedList<String> messageIds; //already received messages
@@ -50,6 +54,31 @@ public class NetworkManager implements NetworkOperations {
 
     public void leaveNetwork() {
 
+    }
+
+    /**
+     * Returns the {@link InetAddress IP Address} of the Node.
+     * <p>
+     * Works only for Linux and Windows
+     *
+     * @return the IP address of the node
+     * @throws Exception
+     */
+    public InetAddress getIP() throws Exception {
+        try (final DatagramSocket socket = new DatagramSocket()) {
+            socket.connect(InetAddress.getByName("8.8.8.8"), 10002);
+            return socket.getInetAddress();
+
+        } catch (SocketException e) {
+            e.printStackTrace();
+            //TODO log
+            throw new Exception("socket exception");
+
+        } catch (UnknownHostException e) {
+            e.printStackTrace();
+            //TODO log
+            throw new Exception("Unknown host exception");
+        }
     }
 
 }
