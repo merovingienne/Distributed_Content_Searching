@@ -1,23 +1,28 @@
 package org.altumtek.networkmanager;
 
 import org.altumtek.Request.BaseRequest;
+import org.altumtek.communication.HeartBeatManager;
 
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.SocketException;
 import java.net.UnknownHostException;
-import java.util.LinkedList;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 
 public class NetworkManager implements NetworkOperations {
 
     private static NetworkManager networkManager;
-    private RouteTable routeTable = new RouteTable();
-    private Gossip gossip;
+
+    private RouteTable routeTable;
+    private GossipManager gossipManager;
+    private HeartBeatManager heartBeatManager;
+
     private InetAddress ipAddress;
     private int port;
 
-    private LinkedList<String> messageIds; //already received messages
+    private List<String> messageIds; //already received messages
 
     private NetworkManager() {
     }
@@ -33,6 +38,11 @@ public class NetworkManager implements NetworkOperations {
 
     private void init() {
         try {
+            this.routeTable = new RouteTable();
+            this.gossipManager = new GossipManager();
+            this.heartBeatManager = new HeartBeatManager();
+            this.messageIds = new ArrayList<>();
+
             this.ipAddress = findIP();
             this.port = new Random().nextInt(10000) + 1200; // ports above 1200
         } catch (Exception e) {
