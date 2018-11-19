@@ -6,17 +6,13 @@ import org.altumtek.networkmanager.NetworkManager;
 import org.altumtek.networkmanager.RouteTable;
 
 import java.net.DatagramSocket;
-import java.util.Optional;
 import java.util.Timer;
 import java.util.TimerTask;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.LinkedBlockingDeque;
 
 public class HeartbeatManager {
 
     private final static int PERIOD = 5000;
-    private final static int NODE_EXPIRE = PERIOD * 4;
-    private final static BlockingQueue<HeartbeatRequest> heartbeatQueue = new LinkedBlockingDeque<>();
+    private final static int CHECK_FACTOR = 4;
 
     public void sendHeartbeat() {
         new Timer().schedule(new TimerTask() {
@@ -38,41 +34,12 @@ public class HeartbeatManager {
         }, 0, PERIOD);
     }
 
-    private static void handleHeartbeat() throws InterruptedException {
-        // Remove the nodes which have not sent the last HB within the declared period
+    public void handleHeartbeat() {
         new Timer().schedule(new TimerTask() {
             @Override
             public void run() {
-                // FIXME this might be problematic removing elements while looping through it
-                for (RouteTable.Node node : NetworkManager.getInstance().getRouteTable().getNeighbourList()) {
-//                    if (node.timestamp + NODE_EXPIRE < new Timestamp(System.currentTimeMillis())) {
-//                        // TODO remove the node from the table
-//                    }
-                }
+                // TODO
             }
-        }, 0, NODE_EXPIRE);
-
-        // Update the timestamp
-        while (true) {
-            HeartbeatRequest hbRequest = heartbeatQueue.take();
-            Optional<RouteTable.Node> node = NetworkManager.getInstance().getRouteTable().getNeighbourList()
-                    .stream()
-                    .filter(n -> n.ip == hbRequest.getSenderIP())
-                    .findFirst();
-
-            if (node.isPresent()) {
-                // TODO update the timestamp of the RoutingTable.Node.timestamp
-            }
-        }
-    }
-
-    /**
-     * Put the <code>hbMsg</code> into the {@link #queueHBMessage(HeartbeatRequest) blocking queue}
-     *
-     * @param hbMsg {@link HeartbeatRequest}
-     * @throws InterruptedException
-     */
-    public static void queueHBMessage(HeartbeatRequest hbMsg) throws InterruptedException {
-        heartbeatQueue.put(hbMsg);
+        }, 0, (PERIOD * CHECK_FACTOR));
     }
 }
