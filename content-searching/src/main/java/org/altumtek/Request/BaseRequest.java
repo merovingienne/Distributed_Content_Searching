@@ -132,4 +132,19 @@ public abstract class BaseRequest {
         return this.identifier.toString();
     }
 
+    public UUID getIdentifier() {
+        return identifier;
+    }
+
+    public RequestType getType() {
+        return type;
+    }
+
+    public InetAddress getSenderIP() {
+        return senderIP;
+    }
+
+    public int getSenderPort() {
+        return senderPort;
+    }
 }
