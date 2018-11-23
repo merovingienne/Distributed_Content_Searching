@@ -3,6 +3,8 @@ package org.altumtek.Request;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
+import java.net.UnknownHostException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.UUID;
 
@@ -24,6 +26,12 @@ public abstract class BaseRequest {
     protected HashMap<String, String> data;
     protected boolean dataReady = false;
 
+    private static final String STR_ID = "ID";
+    private static final String STR_TYPE = "TYPE";
+    private static final String STR_SENDER_IP = "SENDER_IP";
+    private static final String STR_SENDER_PORT = "SENDER_PORT";
+    private static final String STR_HOP_COUNT = "HOP_COUNT";
+
     BaseRequest(){
         this.identifier = UUID.randomUUID();
     }
@@ -36,11 +44,11 @@ public abstract class BaseRequest {
         // NON-FINAL
         // Order needs to change depending on the request type.
         // May need discussion.
-        serializedData.concat(serializationUtil("ID", true, identifier.toString()))
-                .concat(serializationUtil("type", true, type.name()))
-                .concat(serializationUtil("senderIP", false, senderIP.getHostAddress()))
-                .concat(serializationUtil("senderPort", false, Integer.toString(senderPort)))
-                .concat(serializationUtil("hopCount", false, Integer.toString(senderPort)));
+        serializedData.concat(serializationUtil(STR_ID, true, identifier.toString()))
+                .concat(serializationUtil(STR_TYPE, true, type.name()))
+                .concat(serializationUtil(STR_SENDER_IP, false, senderIP.getHostAddress()))
+                .concat(serializationUtil(STR_SENDER_PORT, false, Integer.toString(senderPort)))
+                .concat(serializationUtil(STR_HOP_COUNT, false, Integer.toString(senderPort)));
 
 
         // Serialize custom data as "key:value"
@@ -61,8 +69,48 @@ public abstract class BaseRequest {
         this.dataReady = true;
     }
 
-    public void deserialize(DatagramPacket newPacket){
-        // TODO   Recreate a request from new incoming packet
+    /**
+     * Recreate a request from new incoming packet
+     *
+     * @param newPacket
+     * @return
+     */
+
+    public static BaseRequest deserialize(DatagramPacket newPacket){
+        // TODO   Complete this.
+        String packetData = new String(newPacket.getData(), 0, newPacket.getLength());
+        HashMap<String, String> data = deserializationUtil(packetData);
+
+        BaseRequest newRequest = new DummyRequest();
+
+        switch (RequestType.valueOf(data.get(STR_TYPE))){
+            case ACK:
+                newRequest = new AcknowledgementRequest();
+                break;
+            case BSC:
+                break;
+            case GOSSIP:
+                newRequest = new GossipRequest();
+                break;
+            case HEARTBEAT:
+                newRequest = new HeartbeatRequest();
+                break;
+            case SEARCH:
+//                newRequest = new SearchRequest();
+                break;
+        }
+
+        newRequest.identifier = UUID.fromString(data.get(STR_ID));
+        try {
+            newRequest.senderIP = InetAddress.getByName(data.get(STR_SENDER_IP));
+        } catch (UnknownHostException e) {
+            e.printStackTrace();
+        }
+        newRequest.senderPort = Integer.decode(data.get(STR_SENDER_PORT));
+        newRequest.hopCount = Integer.decode(data.get(STR_HOP_COUNT));
+        newRequest.data = data;
+
+        return newRequest;
     }
 
     /**
@@ -124,12 +172,74 @@ public abstract class BaseRequest {
     }
 
     /**
+     * Util method to deserialize data from request.
+     *
+     * @param dataString
+     * @return
+     */
+    private static HashMap<String, String> deserializationUtil(String dataString){
+        HashMap<String, String> data = new HashMap<String, String>();
+
+        String localType = RequestType.DUMMY.name();
+        ArrayList<String> orderedDataWithoutKeys = new ArrayList();
+
+        String[] dataList = dataString.split(" ");
+
+        // TODO Complete and clean up date extraction.
+
+        for (String component : dataList) {
+            System.out.println("Decoded component: " + component);
+            String[] temp = component.split(":");
+
+            if (temp.length > 1){
+                for (String k : temp){
+                    System.out.println("decoded: " + k);
+                }
+                if (temp[0].equalsIgnoreCase(STR_TYPE)){
+                    localType = temp[1];
+                }
+                data.put(temp[0], temp[1]);
+            } else {
+                orderedDataWithoutKeys.add(temp[0]);
+            }
+        }
+
+        // TODO extract data for each request type.
+
+        switch (RequestType.valueOf(localType)){
+            case ACK:
+//                data.put();
+                break;
+            case BSC:
+                break;
+            case GOSSIP:
+                break;
+            case HEARTBEAT:
+                break;
+            case SEARCH:
+//                newRequest = new SearchRequest();
+                break;
+        }
+
+        return data;
+    }
+
+    /**
      * Get UUID for comparison purposes.
      *
      * @return
      */
     public String getID(){
         return this.identifier.toString();
+    }
+
+    /**
+     * To read STR_ID from incoming request (UDP)
+     * and set in recreated request.
+     * @param ID
+     */
+    public void setCustomID(UUID ID){
+        this.identifier = ID;
     }
 
 }
