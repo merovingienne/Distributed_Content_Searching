@@ -3,12 +3,12 @@ package org.altumtek.Request;
 /**
  * Gossip Request
  * Sent between nodes to discover peers.
- *
+ * <p>
  * Created by chanuka on 10/14/18.
  */
-public class GossipRequest extends BaseRequest{
+public class GossipRequest extends BaseRequest {
 
-    public GossipRequest(){
+    public GossipRequest() {
         this.type = RequestType.GOSSIP;
     }
 }
