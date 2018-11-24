@@ -1,109 +1,100 @@
 package org.altumtek.networkmanager;
 
 import org.altumtek.Request.BaseRequest;
+import org.altumtek.Request.BootstrapServerRequest;
+import org.altumtek.Request.GossipRequest;
+import org.altumtek.Request.HeartbeatRequest;
 import org.altumtek.communication.HeartBeatManager;
 
 import java.io.IOException;
 import java.net.*;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
-import java.util.StringTokenizer;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
-public class NetworkManager implements NetworkOperations {
+public class NetworkManager {
 
-    private InetAddress bootstrapServerIP;
-    private int bootstrapServerPort;
+    private static final String BOOTSTRAP_SERVER_IP_STR = "127.0.0.1";
+    private static final int BOOTSTRAP_SERVER_PORT = 55555;
+
+    private final InetAddress BOOTSTRAP_SERVER_IP;
+    private final InetAddress IP_ADDRESS;
+    private final int PORT;
+    private final DatagramSocket networkManagerSocket;
 
     private static NetworkManager networkManager;
-
     private RouteTable routeTable;
     private GossipManager gossipManager;
     private HeartBeatManager heartBeatManager;
     private BootstrapManger bootstrapManger;
 
-    private DatagramSocket networkManagerSocket;
-    private InetAddress ipAddress;
-    private int port;
+    private Map<String, BaseRequest> sendMessages; //send messages
+    private Map<String, BaseRequest> receiveMessages; //send messages
 
-    private List<String> messageIds; //already received messages
 
-    private NetworkManager() {
-        //Todo dynamically initialize these data
-        try {
-            this.bootstrapServerIP = InetAddress.getByName("127.0.0.1");
-        } catch (UnknownHostException e) {
-            e.printStackTrace();
-        }
-        this.bootstrapServerPort = 55555;
+    private NetworkManager() throws UnknownHostException, SocketException {
+        this.BOOTSTRAP_SERVER_IP = InetAddress.getByName(BOOTSTRAP_SERVER_IP_STR);
+        this.IP_ADDRESS = findIP();
+        this.PORT = new Random().nextInt(10000) + 1200; // ports above 1200
+
+        this.networkManagerSocket = new DatagramSocket(this.PORT);
+        this.sendMessages = new ConcurrentHashMap<>();
+        this.receiveMessages = new ConcurrentHashMap<>();
     }
 
     public static NetworkManager getInstance() {
-        if (networkManager != null) {
-            return networkManager;
+        if (networkManager != null) return networkManager;
+
+        try {
+            networkManager = new NetworkManager();
+            networkManager.init();
+        } catch (UnknownHostException | SocketException e) {
+            e.printStackTrace();
         }
-        networkManager = new NetworkManager();
-        networkManager.init();
         return networkManager;
     }
 
-    private void init() {
-        try {
-            this.ipAddress = findIP();
-            this.port = new Random().nextInt(10000) + 1200; // ports above 1200
-            this.networkManagerSocket = new DatagramSocket(this.port);
-            this.listenMessages();
+    private void init() throws SocketException {
 
-            this.routeTable = new RouteTable();
-            this.gossipManager = new GossipManager();
-            this.heartBeatManager = new HeartBeatManager();
-            this.bootstrapManger = new BootstrapManger();
-            this.messageIds = new ArrayList<>();
+        this.routeTable = new RouteTable();
 
-            this.bootstrapManger.sendConnectRequest(bootstrapServerIP, bootstrapServerPort);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
+        this.listenMessages();
 
-    public void decodeMessage(BaseRequest request) {
-        if (messageIds.contains(request.getID())) {
-            // TODO message has already reecived
-            return;
-        }
-        // TODO implement this
-//        RequestType type = null;
-//        switch (){
-//            case ():
-//                break;
-//        }
-    }
+        this.gossipManager = new GossipManager();
+        this.gossipManager.start();
 
-    public void encodeMessage(BaseRequest request) {
+        this.heartBeatManager = new HeartBeatManager();
+        //Fixme this.heartBeatManager.start()
+
+        this.bootstrapManger = new BootstrapManger();
+        this.bootstrapManger.connectBootstrapServer(BOOTSTRAP_SERVER_IP, BOOTSTRAP_SERVER_PORT);
 
     }
 
-    public RouteTable getRouteTable() {
-        return routeTable;
-    }
-
-
-    public void listenMessages() {
+    private void listenMessages() {
         new Thread(() -> {
             while (true) {
                 byte[] buffer = new byte[65536];
                 DatagramPacket incoming = new DatagramPacket(buffer, buffer.length);
                 try {
                     networkManagerSocket.receive(incoming);
-                    byte[] data = incoming.getData();
-                    String message = new String(data, 0, incoming.getLength());
-                    echo(incoming.getAddress().getHostAddress() + " : " + incoming.getPort() + " - " + message);
-                    StringTokenizer stringTokenizer = new StringTokenizer(message, " ");
-                    String length = stringTokenizer.nextToken();
-                    String command = stringTokenizer.nextToken();
+                    //Todo call Chanuka's static method
+                    BaseRequest request = null;//BaseRequest.
 
-                    if (command.equals("REGOK")) {
-                        bootstrapManger.handleConnectResponse(message);
+                    if (receiveMessages.containsKey(request.getID()))
+                        continue;
+
+                    receiveMessages.put(request.getID(), request);
+
+                    if (request instanceof GossipRequest) {
+                        gossipManager.addGossipRequest((GossipRequest) request);
+                    } else if (request instanceof HeartbeatRequest) {
+                        try {
+                            HeartBeatManager.queueHBMessage((HeartbeatRequest) request);
+                        } catch (InterruptedException e) {
+                            e.printStackTrace(); // Todo handle within Manager if possible
+                        }
+                    } else if (request instanceof BootstrapServerRequest) {
+                        bootstrapManger.handleConnectResponse((BootstrapServerRequest) request);
                     }
 
                 } catch (IOException e) {
@@ -113,28 +104,29 @@ public class NetworkManager implements NetworkOperations {
         }).start();
     }
 
-    public void connectNetwork() {
-        // Todo create network connect message send to UDP
-    }
-
-    public void leaveNetwork() {
-
+    public void sendMessages (BaseRequest request, InetAddress ip, int port) {
+        try {
+            request.send(ip,port,networkManagerSocket);
+            sendMessages.put(request.getID(), request);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     public InetAddress getIpAddress() {
-        return ipAddress;
+        return IP_ADDRESS;
     }
 
     public int getPort() {
-        return port;
+        return PORT;
     }
 
-    public DatagramSocket getNetworkManagerSocket() {
-        return networkManagerSocket;
+    public RouteTable getRouteTable() {
+        return routeTable;
     }
 
     // Returns the IP Address of the Node, works only for Linux and Windows
-    private InetAddress findIP() throws Exception {
+    private InetAddress findIP() throws SocketException{
         try (final DatagramSocket socket = new DatagramSocket()) {
             socket.connect(InetAddress.getByName("8.8.8.8"), 10002);
             return socket.getInetAddress();
@@ -142,17 +134,13 @@ public class NetworkManager implements NetworkOperations {
         } catch (SocketException e) {
             e.printStackTrace();
             //TODO log
-            throw new Exception("socket exception");
+            throw new SocketException("socket exception");
 
         } catch (UnknownHostException e) {
             e.printStackTrace();
             //TODO log
-            throw new Exception("Unknown host exception");
+            throw new SocketException("Unknown host exception");
         }
-    }
-
-    public static void echo(String msg) {
-        System.out.println(msg);
     }
 
 }
