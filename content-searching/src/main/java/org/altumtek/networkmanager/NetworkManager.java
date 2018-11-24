@@ -2,6 +2,7 @@ package org.altumtek.networkmanager;
 
 import org.altumtek.Request.*;
 import org.altumtek.communication.HeartBeatManager;
+import org.altumtek.networkmanager.utils.IContentSearch;
 
 import java.io.IOException;
 import java.net.*;
@@ -107,7 +108,7 @@ public class NetworkManager {
         }).start();
     }
 
-    public void sendMessages (BaseRequest request, InetAddress ip, int port) {
+    void sendMessages(BaseRequest request, InetAddress ip, int port) {
         try {
             request.send(ip,port,networkManagerSocket);
             sendMessages.put(request.getID(), request);
@@ -144,6 +145,15 @@ public class NetworkManager {
             //TODO log
             throw new SocketException("Unknown host exception");
         }
+    }
+
+    /**
+     * Search the network
+     * @param name search query
+     * @param app app to send results
+     */
+    public void search(String name, IContentSearch app) {
+        this.searchManager.sendSearchRequest(name, app);
     }
 
 }

@@ -1,24 +1,25 @@
 package org.altumtek.networkmanager;
 
 import org.altumtek.Request.SearchRequest;
+import org.altumtek.networkmanager.utils.IContentSearch;
 
 import java.net.InetAddress;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Timer;
-import java.util.TimerTask;
+import java.util.*;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.LinkedBlockingQueue;
 
 public class SearchManager {
     private static final int SEARCH_HANDLE_PERIOD = 400;
     private final BlockingQueue<SearchRequest> searchRequestQueue = new LinkedBlockingQueue<>();
+    private final Map<String, IContentSearch> searchQueries = new ConcurrentHashMap<>();
 
     void start() {
         this.handleSearchRequest();
     }
 
-    public void sendSearchRequest(String searchName) {
+    public void sendSearchRequest(String searchName, IContentSearch app) {
+        searchQueries.put(searchName, app);
         SearchRequest request = new SearchRequest(
                 SearchRequest.SearchRequestType.SEARCH,
                 NetworkManager.getInstance().getIpAddress(),
@@ -40,6 +41,8 @@ public class SearchManager {
         List<String> files = searchRequest.getFileNames();
         InetAddress fileOwner = searchRequest.getResultOwnerIP();
         int port = searchRequest.getResultOwnerPort();
+        IContentSearch searchApp = searchQueries.get(searchName);
+        searchApp.onSearchResults(fileOwner, port, files);
 
     }
 
