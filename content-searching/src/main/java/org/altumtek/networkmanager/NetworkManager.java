@@ -1,9 +1,6 @@
 package org.altumtek.networkmanager;
 
-import org.altumtek.Request.BaseRequest;
-import org.altumtek.Request.BootstrapServerRequest;
-import org.altumtek.Request.GossipRequest;
-import org.altumtek.Request.HeartbeatRequest;
+import org.altumtek.Request.*;
 import org.altumtek.communication.HeartBeatManager;
 
 import java.io.IOException;
@@ -26,6 +23,7 @@ public class NetworkManager {
     private GossipManager gossipManager;
     private HeartBeatManager heartBeatManager;
     private BootstrapManger bootstrapManger;
+    private SearchManager searchManager;
 
     private Map<String, BaseRequest> sendMessages; //send messages
     private Map<String, BaseRequest> receiveMessages; //send messages
@@ -65,6 +63,9 @@ public class NetworkManager {
         this.heartBeatManager = new HeartBeatManager();
         //Fixme this.heartBeatManager.start()
 
+        this.searchManager = new SearchManager();
+        this.searchManager.start();
+
         this.bootstrapManger = new BootstrapManger();
         this.bootstrapManger.connectBootstrapServer(BOOTSTRAP_SERVER_IP, BOOTSTRAP_SERVER_PORT);
 
@@ -95,6 +96,8 @@ public class NetworkManager {
                         }
                     } else if (request instanceof BootstrapServerRequest) {
                         bootstrapManger.handleConnectResponse((BootstrapServerRequest) request);
+                    } else if (request instanceof SearchRequest) {
+                        searchManager.addSearchRequest((SearchRequest) request);
                     }
 
                 } catch (IOException e) {
