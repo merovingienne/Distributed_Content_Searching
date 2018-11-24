@@ -14,9 +14,9 @@ public class GossipManager {
 
     private final static int NEIGHBOUR_LIMIT = 4;
     private final static int GOSSIP_PERIOD = 1000;
-    private final static BlockingQueue<GossipRequest> gossipRequestQueue = new LinkedBlockingDeque<>();
+    private final BlockingQueue<GossipRequest> gossipRequestQueue = new LinkedBlockingDeque<>();
 
-    public void start () {
+    void start() {
         this.handleGossipRequests();
         this.sendGossipRequests();
     }
@@ -43,7 +43,7 @@ public class GossipManager {
     }
 
 
-   public void handleGossipRequests() {
+   private void handleGossipRequests() {
         new Timer().schedule(new TimerTask() {
             @Override
             public void run() {
@@ -63,7 +63,7 @@ public class GossipManager {
         }, 0, GOSSIP_PERIOD);
    }
 
-    public void sendGossipRequests() {
+    private void sendGossipRequests() {
         new Timer().schedule(new TimerTask() {
             @Override
             public void run() {
@@ -80,7 +80,7 @@ public class GossipManager {
         },0,GOSSIP_PERIOD);
     }
 
-    public void addGossipRequest (GossipRequest gossipRequest) {
+    void addGossipRequest(GossipRequest gossipRequest) {
         try {
             gossipRequestQueue.put(gossipRequest);
         } catch (InterruptedException e) {
