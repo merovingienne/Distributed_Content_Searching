@@ -11,5 +11,7 @@ public enum RequestType {
     DUMMY,      // Dummy request
     GOSSIP,
     HEARTBEAT,
+    JOIN,
+    LEAVE,
     SEARCH;
 }

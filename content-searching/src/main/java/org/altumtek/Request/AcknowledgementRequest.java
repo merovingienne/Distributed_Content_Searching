@@ -1,5 +1,7 @@
 package org.altumtek.Request;
 
+import java.net.InetAddress;
+
 /**
  * Acknowledgement of UDP packet receipt.
  * Used to implement reliable communication.
@@ -8,7 +10,9 @@ package org.altumtek.Request;
  */
 public class AcknowledgementRequest extends BaseRequest {
 
-    public AcknowledgementRequest() {
+    public AcknowledgementRequest(InetAddress senderIP, int senderPort) {
         this.type = RequestType.ACK;
+        this.senderIP = senderIP;
+        this.senderPort = senderPort;
     }
 }
