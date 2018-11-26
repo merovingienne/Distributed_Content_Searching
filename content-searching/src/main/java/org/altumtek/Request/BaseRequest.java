@@ -23,7 +23,7 @@ public abstract class BaseRequest {
     protected int senderPort;
     protected int hopCount;
     protected DatagramPacket packet;
-    protected HashMap<String, String> data;
+    protected HashMap<String, String> data = new HashMap<>();
     protected boolean dataReady = false;
 
     private static final String STR_ID = "ID";
@@ -44,12 +44,33 @@ public abstract class BaseRequest {
         // NON-FINAL
         // Order needs to change depending on the request type.
         // May need discussion.
-        serializedData.concat(serializationUtil(STR_ID, true, identifier.toString()))
-                .concat(serializationUtil(STR_TYPE, true, type.name()))
-                .concat(serializationUtil(STR_SENDER_IP, false, senderIP.getHostAddress()))
-                .concat(serializationUtil(STR_SENDER_PORT, false, Integer.toString(senderPort)))
-                .concat(serializationUtil(STR_HOP_COUNT, false, Integer.toString(senderPort)));
+        String _ID = serializationUtil(STR_ID, true, identifier.toString());
+        String _TYPE = serializationUtil(STR_TYPE, true, type.name());
+        String _SENDER_IP = serializationUtil(STR_SENDER_IP, false, senderIP.getHostAddress());
+        String _SENDER_PORT = serializationUtil(STR_SENDER_PORT, false, Integer.toString(senderPort));
+        String _HOP_COUNT = serializationUtil(STR_HOP_COUNT, false, Integer.toString(hopCount));
 
+        switch (RequestType.valueOf(type.name())){
+            case BSC:
+//                Handled by BootstrapServerRequest class
+//                serializedData.concat(getCommand())
+//                .concat(_SENDER_IP)
+//                .concat(_SENDER_PORT);
+                break;
+            // Below are messages between peers
+            case GOSSIP:
+                // handled internally by GossipRequest class
+                break;
+            case HEARTBEAT:
+                break;
+            case ACK:
+            case JOIN:
+            case LEAVE:
+                serializedData.concat(getCommand())
+                        .concat(_SENDER_IP)
+                        .concat(_SENDER_PORT);
+                break;
+        }
 
         // Serialize custom data as "key:value"
         for (String key : data.keySet()) {
@@ -61,7 +82,48 @@ public abstract class BaseRequest {
 
         // set message length at the beginning
         int length = serializedData.length() + 4;
-        serializedData = String.format("%04d", length) + serializedData;
+        serializedData = String.format("%04d", length) + serializedData; // we have added first space between length and param already
+
+
+        // Ready packet
+        this.packet = new DatagramPacket(serializedData.getBytes(), 0, serializedData.getBytes().length);
+        this.dataReady = true;
+    }
+
+    /**
+     * Overloaded serialization method for Search requests
+     *
+     * @param fileName - file to be searched
+     */
+    public void serialize(String fileName) {
+        // create packet data
+        String serializedData = " "; // space between msg length and rest of msg
+
+        String _ID = serializationUtil(STR_ID, true, identifier.toString());
+        String _TYPE = serializationUtil(STR_TYPE, true, type.name());
+        String _SENDER_IP = serializationUtil(STR_SENDER_IP, false, senderIP.getHostAddress());
+        String _SENDER_PORT = serializationUtil(STR_SENDER_PORT, false, Integer.toString(senderPort));
+        String _HOP_COUNT = serializationUtil(STR_HOP_COUNT, false, Integer.toString(hopCount));
+
+        serializedData.concat(getCommand())
+                .concat(_SENDER_IP)
+                .concat(_SENDER_PORT)
+                .concat(fileName)
+                .concat(_HOP_COUNT)
+                .concat(_ID)
+                .concat(_TYPE);
+
+        // Serialize custom data as "key:value"
+        for (String key : data.keySet()) {
+            String keyVal = serializationUtil(key, true, data.get(key));
+            if ((serializedData.getBytes().length + keyVal.getBytes().length) < 254) {
+                serializedData.concat(keyVal);
+            }
+        }
+
+        // set message length at the beginning
+        int length = serializedData.length() + 4;
+        serializedData = String.format("%04d", length) + serializedData; // we have added first space between length and param already
 
 
         // Ready packet
@@ -86,12 +148,12 @@ public abstract class BaseRequest {
 
         switch (RequestType.valueOf(data.get(STR_TYPE))){
             case ACK:
-                newRequest = new AcknowledgementRequest();
+//                newRequest = new AcknowledgementRequest();
                 break;
             case BSC:
                 break;
             case GOSSIP:
-                newRequest = new GossipRequest();
+//                newRequest = new GossipRequest();
                 break;
             case HEARTBEAT:
 //                newRequest = new HeartbeatRequest();
@@ -247,6 +309,10 @@ public abstract class BaseRequest {
         return identifier;
     }
 
+    public void setHopCount(int count){
+        this.hopCount = count;
+    }
+
     public RequestType getType() {
         return type;
     }
@@ -257,5 +323,15 @@ public abstract class BaseRequest {
 
     public int getSenderPort() {
         return senderPort;
+    }
+
+    public String getCommand(){
+        // handle in relevant derived classes : BSServerCommand, JOIN, LEAVE
+        return "ERROR : Base command.";
+    }
+
+    public String getResponse(){
+        // handle in relevant derived classes : BSServerCommand, JOIN, LEAVE
+        return "ERROR : Base Response.";
     }
 }
