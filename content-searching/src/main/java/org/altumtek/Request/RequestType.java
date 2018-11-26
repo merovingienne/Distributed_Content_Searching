@@ -11,6 +11,7 @@ public enum RequestType {
     DUMMY,      // Dummy request
     ERROR,
     GOSSIP,
+    GOSSIPOK,
     HEARTBEAT,
     JOIN,
     JOINOK,

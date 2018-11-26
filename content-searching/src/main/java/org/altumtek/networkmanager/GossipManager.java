@@ -1,6 +1,7 @@
 package org.altumtek.networkmanager;
 
 import org.altumtek.Request.GossipRequest;
+import org.altumtek.Request.RequestType;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -36,7 +37,7 @@ public class GossipManager {
         processGossipReply(gossipRequest); //to add nodes in gossip request to route table
         List<RouteTable.Node> nodesList = new ArrayList<>(NetworkManager.getInstance().getRouteTable()
                 .getNeighbourList());
-        GossipRequest replyGossipRequest = new GossipRequest(GossipRequest.GossipRequestType.REQUEST,
+        GossipRequest replyGossipRequest = new GossipRequest(RequestType.GOSSIPOK,
                 nodesList);
         NetworkManager.getInstance().sendMessages(replyGossipRequest,
                 gossipRequest.getSenderIP(),gossipRequest.getSenderPort());
@@ -50,9 +51,9 @@ public class GossipManager {
                 while (gossipRequestQueue.size() > 0) {
                     try {
                         GossipRequest gossipRequest = gossipRequestQueue.take();
-                        if (gossipRequest.getGossipType() == GossipRequest.GossipRequestType.RESPONSE) {
+                        if (gossipRequest.getType() == RequestType.GOSSIPOK) {
                             processGossipReply(gossipRequest);
-                        } else if(gossipRequest.getGossipType() == GossipRequest.GossipRequestType.REQUEST) {
+                        } else if(gossipRequest.getType() == RequestType.GOSSIP) {
                             replyGossipRequest(gossipRequest);
                         }
                     } catch (InterruptedException e) {
@@ -71,7 +72,7 @@ public class GossipManager {
                     List<RouteTable.Node> nodesList = new ArrayList<>(NetworkManager.getInstance().getRouteTable()
                             .getNeighbourList());
                     for (RouteTable.Node node: NetworkManager.getInstance().getRouteTable().getNeighbourList()) {
-                        GossipRequest gossipRequest = new GossipRequest(GossipRequest.GossipRequestType.REQUEST,
+                        GossipRequest gossipRequest = new GossipRequest(RequestType.GOSSIP,
                                 nodesList);
                         NetworkManager.getInstance().sendMessages(gossipRequest, node.ip, node.port);
                     }
