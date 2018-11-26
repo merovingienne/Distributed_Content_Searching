@@ -8,7 +8,10 @@ package org.altumtek.Request;
 public enum RequestType {
     ACK,        // acknowledgement
     BSC,        // Bootstrap Server Command
+    DUMMY,      // Dummy request
     GOSSIP,
     HEARTBEAT,
+    JOIN,
+    LEAVE,
     SEARCH;
 }
