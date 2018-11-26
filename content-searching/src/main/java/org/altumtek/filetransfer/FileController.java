@@ -1,5 +1,6 @@
 package org.altumtek.filetransfer;
 
+import org.apache.log4j.Logger;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.core.io.Resource;
 import org.springframework.hateoas.ExposesResourceFor;
@@ -20,7 +21,9 @@ import java.io.FileNotFoundException;
 @RestController
 @ExposesResourceFor(DFile.class)
 @RequestMapping(value = "/file", produces = "application/json")
-public class FileControler {
+public class FileController {
+
+    private final static Logger logger = Logger.getLogger(FileController.class);
 
     @RequestMapping(path = "/download", method = RequestMethod.GET)
     public ResponseEntity<Resource> downloadDocument() {
@@ -38,7 +41,7 @@ public class FileControler {
                     .body(resource);
 
         } catch (FileNotFoundException e) {
-            e.printStackTrace();
+            logger.error("Exception occurred while reading the input stream");
         }
 
         return new ResponseEntity<>(HttpStatus.NOT_FOUND);

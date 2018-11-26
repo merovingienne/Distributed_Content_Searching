@@ -6,7 +6,8 @@ import org.altumtek.networkmanager.utils.IContentSearch;
 
 import java.io.IOException;
 import java.net.*;
-import java.util.*;
+import java.util.Map;
+import java.util.Random;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class NetworkManager {
@@ -108,9 +109,9 @@ public class NetworkManager {
         }).start();
     }
 
-    void sendMessages(BaseRequest request, InetAddress ip, int port) {
+    public void sendMessages(BaseRequest request, InetAddress ip, int port) {
         try {
-            request.send(ip,port,networkManagerSocket);
+            request.send(ip, port, networkManagerSocket);
             sendMessages.put(request.getID(), request);
         } catch (Exception e) {
             e.printStackTrace();
@@ -130,7 +131,7 @@ public class NetworkManager {
     }
 
     // Returns the IP Address of the Node, works only for Linux and Windows
-    private InetAddress findIP() throws SocketException{
+    private InetAddress findIP() throws SocketException {
         try (final DatagramSocket socket = new DatagramSocket()) {
             socket.connect(InetAddress.getByName("8.8.8.8"), 10002);
             return socket.getInetAddress();
@@ -149,8 +150,9 @@ public class NetworkManager {
 
     /**
      * Search the network
+     *
      * @param name search query
-     * @param app app to send results
+     * @param app  app to send results
      */
     public void search(String name, IContentSearch app) {
         this.searchManager.sendSearchRequest(name, app);
