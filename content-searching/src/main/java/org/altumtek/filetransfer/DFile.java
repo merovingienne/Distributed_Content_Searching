@@ -1,5 +1,7 @@
 package org.altumtek.filetransfer;
 
+import org.apache.log4j.Logger;
+
 import javax.xml.bind.annotation.adapters.HexBinaryAdapter;
 import java.io.*;
 import java.security.MessageDigest;
@@ -7,6 +9,8 @@ import java.security.NoSuchAlgorithmException;
 import java.util.concurrent.ThreadLocalRandom;
 
 public class DFile {
+
+    private final static Logger logger = Logger.getLogger(DFile.class);
 
     public File createFile(String name) {
         String fileName = System.getProperty("java.io.tmpdir") + File.separator + name;
@@ -17,7 +21,7 @@ public class DFile {
             bw.write(chars);
 
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.error("Error occurred while creating the file: " + fileName, e);
         }
 
         File file = new File(fileName);
@@ -25,8 +29,12 @@ public class DFile {
             try {
                 System.out.printf("%s File Size = %.2f MB\n", name, (file.length() / (1024 * 1024)) * 1.0); //FIXME not correctly getting the size (decimal part)
                 System.out.printf("SHA of the %s File = %s\n", name, sha1(file));
-            } catch (NoSuchAlgorithmException | IOException e) {
-                e.printStackTrace();
+
+            } catch (NoSuchAlgorithmException e) {
+                logger.error("Algorithm SHA-1 does not exists!", e);
+
+            } catch (IOException e) {
+                logger.error("Error occurred while generating the SHA value of the file", e);
             }
         }
 

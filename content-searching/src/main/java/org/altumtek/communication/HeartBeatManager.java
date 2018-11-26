@@ -23,15 +23,9 @@ public class HeartBeatManager {
             @Override
             public void run() {
                 for (RouteTable.Node node : NetworkManager.getInstance().getRouteTable().getNeighbourList()) {
-                    try {
-                        BaseRequest hb = new HeartbeatRequest(NetworkManager.getInstance().getIpAddress(),
-                                NetworkManager.getInstance().getPort());
-                        NetworkManager.getInstance().sendMessages(hb, node.ip, node.port);
-
-                    } catch (Exception e) {
-                        //TODO log
-                        e.printStackTrace();
-                    }
+                    BaseRequest hb = new HeartbeatRequest(NetworkManager.getInstance().getIpAddress(),
+                            NetworkManager.getInstance().getPort());
+                    NetworkManager.getInstance().sendMessages(hb, node.ip, node.port);
                 }
             }
         }, 0, PERIOD);
