@@ -17,12 +17,16 @@ public class RouteTable {
         }
     }
 
+    public void removeNeighbour(Node node) {
+        neighbourList.remove(node);
+    }
+
     public BlockingQueue<Node> getNeighbourList() {
         return neighbourList;
     }
 
     public boolean containsNode(InetAddress inetAddress) {
-        for (Node d: neighbourList) {
+        for (Node d : neighbourList) {
             if (d.ip.equals(inetAddress)) return true;
         }
         return false;

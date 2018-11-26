@@ -5,7 +5,7 @@ import org.altumtek.Request.HeartbeatRequest;
 import org.altumtek.networkmanager.NetworkManager;
 import org.altumtek.networkmanager.RouteTable;
 
-import java.net.DatagramSocket;
+import java.sql.Timestamp;
 import java.util.Optional;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -26,8 +26,7 @@ public class HeartBeatManager {
                     try {
                         BaseRequest hb = new HeartbeatRequest(NetworkManager.getInstance().getIpAddress(),
                                 NetworkManager.getInstance().getPort());
-                        hb.serialize();
-                        hb.send(node.ip, node.port, new DatagramSocket());
+                        NetworkManager.getInstance().sendMessages(hb, node.ip, node.port);
 
                     } catch (Exception e) {
                         //TODO log
@@ -45,9 +44,9 @@ public class HeartBeatManager {
             public void run() {
                 // FIXME this might be problematic removing elements while looping through it
                 for (RouteTable.Node node : NetworkManager.getInstance().getRouteTable().getNeighbourList()) {
-//                    if (node.timestamp + NODE_EXPIRE < new Timestamp(System.currentTimeMillis())) {
-//                        // TODO remove the node from the table
-//                    }
+                    if ((node.getTimestamp().getTime() + NODE_EXPIRE) < System.currentTimeMillis()) {
+                        NetworkManager.getInstance().getRouteTable().removeNeighbour(node);
+                    }
                 }
             }
         }, 0, NODE_EXPIRE);
@@ -60,9 +59,7 @@ public class HeartBeatManager {
                     .filter(n -> n.ip == hbRequest.getSenderIP())
                     .findFirst();
 
-            if (node.isPresent()) {
-                // TODO update the timestamp of the RoutingTable.Node.timestamp
-            }
+            node.ifPresent(node1 -> node1.setTimestamp(new Timestamp(System.currentTimeMillis())));
 
             //TODO if a node is sending hb messages to you which is not in your routing table notify that particular node
         }
