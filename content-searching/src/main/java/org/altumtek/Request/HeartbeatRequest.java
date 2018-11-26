@@ -14,5 +14,9 @@ public class HeartbeatRequest extends BaseRequest {
         this.type = RequestType.HEARTBEAT;
         this.senderIP = senderIP;
         this.senderPort = senderPort;
+
+        this.message.concat(serializationUtil(this.type.name()))
+                .concat(serializationUtil(this.senderIP.getHostAddress()))
+                .concat(serializationUtil(Integer.toString(this.senderPort)));
     }
 }
