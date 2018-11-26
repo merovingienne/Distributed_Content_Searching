@@ -4,6 +4,7 @@ import org.altumtek.Request.BaseRequest;
 import org.altumtek.Request.HeartbeatRequest;
 import org.altumtek.networkmanager.NetworkManager;
 import org.altumtek.networkmanager.RouteTable;
+import org.apache.log4j.Logger;
 
 import java.sql.Timestamp;
 import java.util.Optional;
@@ -16,7 +17,13 @@ public class HeartBeatManager {
 
     private final static int PERIOD = 5000;
     private final static int NODE_EXPIRE = PERIOD * 4;
-    private final static BlockingQueue<HeartbeatRequest> heartbeatQueue = new LinkedBlockingDeque<>();
+    private final static Logger logger = Logger.getLogger(HeartBeatManager.class);
+    private final BlockingQueue<HeartbeatRequest> heartbeatQueue = new LinkedBlockingDeque<>();
+
+    public void start() {
+        sendHeartbeat();
+        handleHeartbeat();
+    }
 
     public void sendHeartbeat() {
         new Timer().schedule(new TimerTask() {
@@ -31,7 +38,7 @@ public class HeartBeatManager {
         }, 0, PERIOD);
     }
 
-    private static void handleHeartbeat() throws InterruptedException {
+    private void handleHeartbeat() {
         // Remove the nodes which have not sent the last HB within the declared period
         new Timer().schedule(new TimerTask() {
             @Override
@@ -47,13 +54,18 @@ public class HeartBeatManager {
 
         // Update the timestamp
         while (true) {
-            HeartbeatRequest hbRequest = heartbeatQueue.take();
-            Optional<RouteTable.Node> node = NetworkManager.getInstance().getRouteTable().getNeighbourList()
-                    .stream()
-                    .filter(n -> n.ip == hbRequest.getSenderIP())
-                    .findFirst();
+            try {
+                HeartbeatRequest hbRequest = heartbeatQueue.take();
+                Optional<RouteTable.Node> node = NetworkManager.getInstance().getRouteTable().getNeighbourList()
+                        .stream()
+                        .filter(n -> n.ip == hbRequest.getSenderIP())
+                        .findFirst();
 
-            node.ifPresent(node1 -> node1.setTimestamp(new Timestamp(System.currentTimeMillis())));
+                node.ifPresent(node1 -> node1.setTimestamp(new Timestamp(System.currentTimeMillis())));
+
+            } catch (InterruptedException e) {
+                logger.error("Exception occurred while adding HB message to the queue", e);
+            }
 
             //TODO if a node is sending hb messages to you which is not in your routing table notify that particular node
         }
@@ -65,7 +77,12 @@ public class HeartBeatManager {
      * @param hbMsg {@link HeartbeatRequest}
      * @throws InterruptedException
      */
-    public static void queueHBMessage(HeartbeatRequest hbMsg) throws InterruptedException {
-        heartbeatQueue.put(hbMsg);
+    public void queueHBMessage(HeartbeatRequest hbMsg) {
+        try {
+            heartbeatQueue.put(hbMsg);
+
+        } catch (InterruptedException e) {
+            logger.error("Exception occurred while adding HB message to the queue", e);
+        }
     }
 }
