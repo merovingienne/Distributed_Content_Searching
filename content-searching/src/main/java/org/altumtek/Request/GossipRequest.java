@@ -17,44 +17,41 @@ import java.util.stream.Collectors;
  */
 public class GossipRequest extends BaseRequest {
 
-    public enum GossipRequestType {
-        REQUEST,
-        RESPONSE,
-    }
-
-    private GossipRequestType gossipType;
     private List<RouteTable.Node> neighbourList = new ArrayList<>();
 
-    public GossipRequest(GossipRequestType gossipType, List<RouteTable.Node> nodeList) {
+    /**
+     * Constructor to create outbound Gossip request.
+     *
+     * @param nodeList
+     */
+    public GossipRequest(List<RouteTable.Node> nodeList) {
         this.type = RequestType.GOSSIP;
-        this.gossipType = gossipType;
 
-        String msg = nodeList
+        String nodeMsg = nodeList
                 .stream()
-                .map(node->node.ip + "-" + node.port)
-                .collect(Collectors.joining("-"));
+                .map(node -> node.ip + " " + node.port)
+                .collect(Collectors.joining(" "));
 
-        switch (gossipType) {
-            case REQUEST:
-                msg = "REQ-"+msg;
-                break;
-            case RESPONSE:
-                msg = "RES-"+msg;
-                break;
-        }
+        this.message.concat(serializationUtil(this.type.name()))
+                .concat(serializationUtil(this.senderIP.getHostAddress()))
+                .concat(serializationUtil(Integer.toString(this.senderPort)))
+                .concat(serializationUtil(nodeMsg));
 
-        super.data.put("msg", msg);
     }
 
-    public GossipRequest(String msg) throws UnknownHostException{
-        StringTokenizer tokenizer = new StringTokenizer(msg, "-");
-        String gossipType = tokenizer.nextToken();
+    /**
+     * Constructor to recreate Gossip request from incoming request.
+     *
+     * @param msg
+     * @throws UnknownHostException
+     */
+    public GossipRequest(String msg) throws UnknownHostException {
+        StringTokenizer tokenizer = new StringTokenizer(msg, "0");
 
-        if (gossipType.equals("REQ")) {
-            this.gossipType= GossipRequestType.REQUEST;
-        } else if (gossipType.equals("RES")) {
-            this.gossipType = GossipRequestType.RESPONSE;
-        }
+        tokenizer.nextToken(); // request type
+
+        this.senderIP = InetAddress.getByName(tokenizer.nextToken());
+        this.senderPort = Integer.parseInt(tokenizer.nextToken());
 
         while (tokenizer.hasMoreElements()) {
             InetAddress ip = InetAddress.getByName(tokenizer.nextToken());
@@ -67,7 +64,4 @@ public class GossipRequest extends BaseRequest {
         return neighbourList;
     }
 
-    public GossipRequestType getGossipType() {
-        return gossipType;
-    }
 }
