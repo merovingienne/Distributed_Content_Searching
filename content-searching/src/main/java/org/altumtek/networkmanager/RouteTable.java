@@ -1,19 +1,31 @@
 package org.altumtek.networkmanager;
 
 import java.net.InetAddress;
-import java.util.LinkedList;
-import java.util.List;
+import java.sql.Timestamp;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
 
 public class RouteTable {
 
-    private final List<Node> neighbourList = new LinkedList();
+    private final BlockingQueue<Node> neighbourList = new LinkedBlockingQueue<>();
 
     public void addNeighbour(Node d) {
-        neighbourList.add(d);
+        try {
+            neighbourList.put(d);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
     }
 
-    public List<Node> getNeighbourList() {
+    public BlockingQueue<Node> getNeighbourList() {
         return neighbourList;
+    }
+
+    public boolean containsNode(InetAddress inetAddress) {
+        for (Node d: neighbourList) {
+            if (d.ip.equals(inetAddress)) return true;
+        }
+        return false;
     }
 
     public static class Node {
@@ -21,11 +33,51 @@ public class RouteTable {
         public boolean primary;
         public InetAddress ip;
         public int port;
+        public Timestamp timestamp;
+
+        public Node(boolean primary, InetAddress ip, int port, Timestamp timestamp) {
+            this.primary = primary;
+            this.ip = ip;
+            this.port = port;
+            this.timestamp = timestamp;
+        }
 
         public Node(boolean primary, InetAddress ip, int port) {
             this.primary = primary;
             this.ip = ip;
             this.port = port;
+        }
+
+        public boolean isPrimary() {
+            return primary;
+        }
+
+        public void setPrimary(boolean primary) {
+            this.primary = primary;
+        }
+
+        public InetAddress getIp() {
+            return ip;
+        }
+
+        public void setIp(InetAddress ip) {
+            this.ip = ip;
+        }
+
+        public int getPort() {
+            return port;
+        }
+
+        public void setPort(int port) {
+            this.port = port;
+        }
+
+        public Timestamp getTimestamp() {
+            return timestamp;
+        }
+
+        public void setTimestamp(Timestamp timestamp) {
+            this.timestamp = timestamp;
         }
     }
 
