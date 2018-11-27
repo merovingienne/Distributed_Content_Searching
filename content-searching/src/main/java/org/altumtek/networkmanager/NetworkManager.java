@@ -7,9 +7,8 @@ import org.apache.log4j.Logger;
 
 import java.io.IOException;
 import java.net.*;
-import java.util.Map;
+import java.util.Enumeration;
 import java.util.Random;
-import java.util.concurrent.ConcurrentHashMap;
 
 public class NetworkManager {
 
@@ -119,7 +118,7 @@ public class NetworkManager {
         return PORT;
     }
 
-    public String getUserName(){
+    public String getUserName() {
         return USER_NAME;
     }
 
@@ -127,24 +126,41 @@ public class NetworkManager {
         return routeTable;
     }
 
-    // Returns the IP Address of the Node, works only for Linux and Windows
-    private InetAddress findIP() throws SocketException {
+    private static InetAddress findIP() throws UnknownHostException {
+        try {
+            InetAddress candidateAddress = null;
+            for (Enumeration ifaces = NetworkInterface.getNetworkInterfaces(); ifaces.hasMoreElements(); ) {
+                NetworkInterface iface = (NetworkInterface) ifaces.nextElement();
+                for (Enumeration inetAddrs = iface.getInetAddresses(); inetAddrs.hasMoreElements(); ) {
+                    InetAddress inetAddr = (InetAddress) inetAddrs.nextElement();
+                    if (!inetAddr.isLoopbackAddress()) {
 
-        try (final DatagramSocket socket = new DatagramSocket()) {
-            socket.connect(InetAddress.getByName("8.8.8.8"), 10002);
-            return socket.getInetAddress();
+                        if (inetAddr.isSiteLocalAddress()) {
+                            return inetAddr;
+                        } else if (candidateAddress == null) {
+                            candidateAddress = inetAddr;
+                        }
+                    }
+                }
+            }
+            if (candidateAddress != null) {
+                return candidateAddress;
+            }
 
-        } catch (SocketException e) {
-            e.printStackTrace();
-            //TODO log
-            throw new SocketException("socket exception");
+            InetAddress jdkSuppliedAddress = InetAddress.getLocalHost();
+            if (jdkSuppliedAddress == null) {
+                throw new UnknownHostException("The JDK InetAddress.getLocalHost() method unexpectedly returned null.");
+            }
 
-        } catch (UnknownHostException e) {
-            e.printStackTrace();
-            //TODO log
-            throw new SocketException("Unknown host exception");
+            return jdkSuppliedAddress;
+
+        } catch (Exception e) {
+            UnknownHostException unknownHostException = new UnknownHostException("Failed to determine LAN address: " + e);
+            unknownHostException.initCause(e);
+            throw unknownHostException;
         }
     }
+
 
     /**
      * Search the network
@@ -156,7 +172,7 @@ public class NetworkManager {
         this.searchManager.sendSearchRequest(name, app);
     }
 
-    public void stop () {
+    public void stop() {
         this.bootstrapManger.disconnectBootstrapServer(BOOTSTRAP_SERVER_IP, BOOTSTRAP_SERVER_PORT);
         //TODO off different ports
     }
