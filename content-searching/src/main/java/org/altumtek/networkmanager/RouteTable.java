@@ -5,8 +5,6 @@ import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.LinkedBlockingQueue;
 
 public class RouteTable {
 
@@ -20,7 +18,7 @@ public class RouteTable {
                 break;
             }
         }
-        if (removeIndex!= -1) {
+        if (removeIndex != -1) {
             neighbourList.remove(removeIndex);
         }
         neighbourList.add(node);
@@ -34,7 +32,7 @@ public class RouteTable {
                 break;
             }
         }
-        if (removeIndex!= -1) {
+        if (removeIndex != -1) {
             neighbourList.remove(removeIndex);
         }
     }
@@ -68,6 +66,7 @@ public class RouteTable {
             this.primary = primary;
             this.ip = ip;
             this.port = port;
+            this.timestamp = new Timestamp(System.currentTimeMillis() + 10000);
         }
 
         public boolean isPrimary() {
