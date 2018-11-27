@@ -2,6 +2,7 @@ package org.altumtek.networkmanager;
 
 import org.altumtek.Request.RequestType;
 import org.altumtek.Request.SearchRequest;
+import org.altumtek.filemanager.FileManager;
 import org.altumtek.networkmanager.utils.IContentSearch;
 
 import java.net.InetAddress;
@@ -20,12 +21,11 @@ public class SearchManager {
     }
 
     public void sendSearchRequest(String searchName, IContentSearch app) {
-        searchQueries.put(searchName, app);
         SearchRequest request = new SearchRequest(
                 RequestType.SER,
                 searchName
                 );
-
+        searchQueries.put(request.getIdentifier().toString(), app);
         for (RouteTable.Node neighbour: NetworkManager.getInstance().getRouteTable().getNeighbourList()) {
             NetworkManager.getInstance().sendMessages(
                     request,
@@ -37,10 +37,11 @@ public class SearchManager {
 
     private void processSearchReply(SearchRequest searchRequest) {
         String searchName = searchRequest.getSearchName();
+        String identifier = searchRequest.getIdentifier().toString();
         List<String> files = searchRequest.getFileNames();
         InetAddress fileOwner = searchRequest.getResultOwnerIP();
         int port = searchRequest.getResultOwnerPort();
-        IContentSearch searchApp = searchQueries.get(searchName);
+        IContentSearch searchApp = searchQueries.get(identifier);
         searchApp.onSearchResults(fileOwner, port, files);
     }
 
@@ -51,18 +52,20 @@ public class SearchManager {
 
         receivedList.add(searchRequest.getIdentifier());
         String searchName = searchRequest.getSearchName();
-        List<String> matchningFiles = new ArrayList<>(); //Todo find matching files
-        if (matchningFiles.size() > 0) {
+        List<String> matchingFiles = FileManager.getIntance().getMatchingFiles(searchName);
+        if (matchingFiles.size() > 0) {
             SearchRequest replyRequest = new SearchRequest(
                     RequestType.SEROK,
-                    matchningFiles,
-                    searchRequest.getHopsCount() + 1
+                    matchingFiles,
+                    searchRequest.getHopsCount() + 1,
+                    searchRequest.getIdentifier()
             );
             NetworkManager.getInstance().sendMessages(replyRequest,
                     searchRequest.getSearcherIP(),
                     searchRequest.getSearcherPort());
         } else {
-            searchRequest.incrementHops();
+            //Todo only if files are not found, the request is forwarded  ???
+            searchRequest.prepareForward();
             for (RouteTable.Node node: NetworkManager.getInstance().getRouteTable().getNeighbourList()) {
                 NetworkManager.getInstance().sendMessages(searchRequest, node.ip, node.port);
             }
