@@ -15,7 +15,7 @@ public class RouteTable {
     public void addNeighbour(Node node) {
         int removeIndex = -1;
         for (int i = 0; i < neighbourList.size(); i++) {
-            if (neighbourList.get(i).ip == node.ip) {
+            if (neighbourList.get(i).ip == node.ip && neighbourList.get(i).port == node.port) {
                 removeIndex = i;
                 break;
             }
@@ -29,7 +29,7 @@ public class RouteTable {
     public void removeNeighbour(Node node) {
         int removeIndex = -1;
         for (int i = 0; i < neighbourList.size(); i++) {
-            if (neighbourList.get(i).ip == node.ip) {
+            if (neighbourList.get(i).ip == node.ip && neighbourList.get(i).port == node.port) {
                 removeIndex = i;
                 break;
             }
