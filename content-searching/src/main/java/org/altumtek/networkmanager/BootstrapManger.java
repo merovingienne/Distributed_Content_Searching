@@ -55,7 +55,7 @@ public class BootstrapManger {
             this.joinNetwork();
 
         } else if (request.getType() ==
-                RequestType.UNREGOK) {
+                RequestType.UNROK) {
             this.leaveNetwork();
         } else if (request.getType() == RequestType.JOIN) {
             JoinRequest joinRequest = (JoinRequest)request;

@@ -1,6 +1,8 @@
 package org.altumtek.Request;
 
 import org.altumtek.networkmanager.NetworkManager;
+import org.apache.log4j.Logger;
+import sun.rmi.runtime.Log;
 
 import java.io.IOException;
 import java.net.DatagramPacket;
@@ -24,7 +26,7 @@ public abstract class BaseRequest {
     protected InetAddress senderIP;
     protected int senderPort;
     protected String message = "";
-
+    private final static Logger logger = Logger.getLogger(BaseRequest.class);
     public BaseRequest(){
         this.senderIP = NetworkManager.getInstance().getIpAddress();
         this.senderPort = NetworkManager.getInstance().getPort();
@@ -40,6 +42,8 @@ public abstract class BaseRequest {
     public static BaseRequest deserialize(DatagramPacket newPacket) throws UnknownHostException {
         // TODO   Complete this.
         String packetData = new String(newPacket.getData(), 0, newPacket.getLength());
+        logger.info("Receiving : "+packetData);
+
         String len = packetData.split(" ")[0];
         String type = packetData.split(" ")[1];
         String remainingMessage = packetData.substring(4);
@@ -75,7 +79,7 @@ public abstract class BaseRequest {
                 return new BootstrapServerRequest(remainingMessage);
             case UNREG:
                 return new BootstrapServerRequest(remainingMessage);
-            case UNREGOK:
+            case UNROK:
                 return new BootstrapServerRequest(remainingMessage);
         }
 
@@ -93,6 +97,7 @@ public abstract class BaseRequest {
      */
     public void send(InetAddress IP, int port, DatagramSocket socket) throws IOException {
         String newMsg = setLength(this.message);
+        logger.info("Sending : "+newMsg);
         DatagramPacket packet = new DatagramPacket(newMsg.getBytes(), 0, newMsg.getBytes().length);
         packet.setAddress(IP);
         packet.setPort(port);

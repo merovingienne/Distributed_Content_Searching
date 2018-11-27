@@ -14,12 +14,22 @@ public class BootstrapServerRequest extends BaseRequest{
     private List<RouteTable.Node> neighbourList = new ArrayList<>();
 
     public BootstrapServerRequest(RequestType type) {
+        this.type = type;
         if (type == RequestType.REG) {
-            message = String.format("REG %s %d %s", this.senderIP, this.senderPort,
-                    NetworkManager.getInstance().getUserName());
+            this.message.concat(this.type.name())
+                    .concat(this.senderIP.getHostAddress())
+                    .concat(String.valueOf(this.senderPort))
+                    .concat(NetworkManager.getInstance().getUserName());
+
+//            message = String.format(" REG %s %d %s", this.senderIP, this.senderPort,
+//                    NetworkManager.getInstance().getUserName());
         } else if (type == RequestType.UNREG) {
-            message = String.format("UNREG %s %d %s", this.senderIP, this.senderPort,
-                    NetworkManager.getInstance().getUserName());
+            this.message.concat(this.type.name())
+                    .concat(this.senderIP.getHostAddress())
+                    .concat(String.valueOf(this.senderPort))
+                    .concat(NetworkManager.getInstance().getUserName());
+//            message = String.format("UNREG %s %d %s", this.senderIP, this.senderPort,
+//                    NetworkManager.getInstance().getUserName());
         } else {
             throw new RuntimeException("Invalid request type"); // Todo replace with custom exception
         }
@@ -31,7 +41,7 @@ public class BootstrapServerRequest extends BaseRequest{
         StringTokenizer tokens = new StringTokenizer(incomingMessage, " ");
         String command = tokens.nextToken();
 
-        if (command.equals("REGOK")) {
+        if (command.equals(RequestType.REGOK.name())) {
             this.type = RequestType.REGOK;
             int nodes = Integer.parseInt(tokens.nextToken());
             for (int i = 0; i < nodes; i++) {
@@ -43,7 +53,7 @@ public class BootstrapServerRequest extends BaseRequest{
                     e.printStackTrace();
                 }
             }
-        } else if(command.equals("UNROK")) {
+        } else if(command.equals(RequestType.UNROK)) {
             int value = Integer.parseInt(tokens.nextToken());
             if (value == 0) {
                 this.type = RequestType.LEAVEOK;
