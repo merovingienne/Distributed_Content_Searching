@@ -22,5 +22,5 @@ public enum RequestType {
     REG,
     REGOK,
     UNREG,
-    UNREGOK
+    UNROK
 }
