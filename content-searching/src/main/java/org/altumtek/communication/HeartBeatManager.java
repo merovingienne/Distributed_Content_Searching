@@ -53,22 +53,27 @@ public class HeartBeatManager {
         }, 0, NODE_EXPIRE);
 
         // Update the timestamp
-        while (true) {
-            try {
-                HeartbeatRequest hbRequest = heartbeatQueue.take();
-                Optional<RouteTable.Node> node = NetworkManager.getInstance().getRouteTable().getNeighbourList()
-                        .stream()
-                        .filter(n -> n.ip == hbRequest.getSenderIP())
-                        .findFirst();
+        new Timer().schedule(new TimerTask() {
+            @Override
+            public void run() {
+                while (true) {
+                    try {
+                        HeartbeatRequest hbRequest = heartbeatQueue.take();
+                        Optional<RouteTable.Node> node = NetworkManager.getInstance().getRouteTable().getNeighbourList()
+                                .stream()
+                                .filter(n -> n.ip == hbRequest.getSenderIP())
+                                .findFirst();
 
-                node.ifPresent(node1 -> node1.setTimestamp(new Timestamp(System.currentTimeMillis())));
+                        node.ifPresent(node1 -> node1.setTimestamp(new Timestamp(System.currentTimeMillis())));
 
-            } catch (InterruptedException e) {
-                logger.error("Exception occurred while adding HB message to the queue", e);
+                    } catch (InterruptedException e) {
+                        logger.error("Exception occurred while adding HB message to the queue", e);
+                    }
+
+                    //TODO if a node is sending hb messages to you which is not in your routing table notify that particular node
+                }
             }
-
-            //TODO if a node is sending hb messages to you which is not in your routing table notify that particular node
-        }
+        }, 0, PERIOD);
     }
 
     /**

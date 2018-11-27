@@ -2,26 +2,44 @@ package org.altumtek.networkmanager;
 
 import java.net.InetAddress;
 import java.sql.Timestamp;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
 public class RouteTable {
 
-    private final BlockingQueue<Node> neighbourList = new LinkedBlockingQueue<>();
+    private final List<Node> neighbourList = Collections.synchronizedList(new ArrayList<>());
 
-    public void addNeighbour(Node d) {
-        try {
-            neighbourList.put(d);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
+    public void addNeighbour(Node node) {
+        int removeIndex = -1;
+        for (int i = 0; i < neighbourList.size(); i++) {
+            if (neighbourList.get(i).ip == node.ip) {
+                removeIndex = i;
+                break;
+            }
         }
+        if (removeIndex!= -1) {
+            neighbourList.remove(removeIndex);
+        }
+        neighbourList.add(node);
     }
 
     public void removeNeighbour(Node node) {
-        neighbourList.remove(node);
+        int removeIndex = -1;
+        for (int i = 0; i < neighbourList.size(); i++) {
+            if (neighbourList.get(i).ip == node.ip) {
+                removeIndex = i;
+                break;
+            }
+        }
+        if (removeIndex!= -1) {
+            neighbourList.remove(removeIndex);
+        }
     }
 
-    public BlockingQueue<Node> getNeighbourList() {
+    public List<Node> getNeighbourList() {
         return neighbourList;
     }
 

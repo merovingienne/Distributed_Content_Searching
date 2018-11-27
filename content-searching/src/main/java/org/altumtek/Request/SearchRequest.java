@@ -5,6 +5,7 @@ import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.StringTokenizer;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 public class SearchRequest extends BaseRequest{
@@ -16,20 +17,22 @@ public class SearchRequest extends BaseRequest{
     private String searchName;
     private List<String> fileNames;
     private int hops = 0;
+    private UUID identifier;
 
     public SearchRequest(RequestType searchRequestType, String searchName) {
         this.type = RequestType.SER;
-        this.message= String.format("SER %s %d %s %d", senderIP.getHostAddress(), senderPort, searchName, hops);
+        this.identifier = UUID.randomUUID();
+        this.message= String.format("SER %s %d %s %d %s", senderIP.getHostAddress(), senderPort, searchName, hops, identifier.toString());
     }
 
     public SearchRequest(RequestType searchRequestType, List<String> files, int hops) {
         this.type = RequestType.SEROK;
-        String msg = files.stream().collect(Collectors.joining("-"));
+        String msg = files.stream().collect(Collectors.joining(" "));
         this.message = String.format("SEROK %d %s %d %d", files.size(),this.senderIP, this.senderPort, hops)+msg;
     }
 
     public SearchRequest(String msg) throws UnknownHostException {
-        StringTokenizer tokenizer = new StringTokenizer(msg, "-");
+        StringTokenizer tokenizer = new StringTokenizer(msg, " ");
         String searchType = tokenizer.nextToken();
 
         if(searchType.equals("SER")) {
@@ -38,6 +41,7 @@ public class SearchRequest extends BaseRequest{
             this.searcherPort = Integer.valueOf(tokenizer.nextToken());
             this.searchName = tokenizer.nextToken();
             this.hops = Integer.parseInt(tokenizer.nextToken());
+            this.identifier = UUID.fromString(tokenizer.nextToken());
         } else if(searchType.equals("SEROK")) {
             this.type = RequestType.SEROK;
             int fileCount = Integer.valueOf(tokenizer.nextToken());
@@ -73,5 +77,17 @@ public class SearchRequest extends BaseRequest{
 
     public List<String> getFileNames() {
         return fileNames;
+    }
+
+    public void incrementHops(){
+        this.hops += 1;
+    }
+
+    public int getHopsCount(){
+        return this.hops;
+    }
+
+    public UUID getIdentifier(){
+        return identifier;
     }
 }

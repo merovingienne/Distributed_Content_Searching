@@ -3,6 +3,7 @@ package org.altumtek.networkmanager;
 import org.altumtek.Request.*;
 import org.altumtek.communication.HeartBeatManager;
 import org.altumtek.networkmanager.utils.IContentSearch;
+import org.apache.log4j.Logger;
 
 import java.io.IOException;
 import java.net.*;
@@ -28,6 +29,7 @@ public class NetworkManager {
     private BootstrapManger bootstrapManger;
     private SearchManager searchManager;
 
+    private static final Logger logger = Logger.getLogger(NetworkManager.class);
 //    private Map<String, BaseRequest> sendMessages; //send messages
 //    private Map<String, BaseRequest> receiveMessages; //send messages
 
@@ -47,14 +49,14 @@ public class NetworkManager {
 
         try {
             networkManager = new NetworkManager();
-            networkManager.init();
+//            networkManager.init();
         } catch (UnknownHostException | SocketException e) {
             e.printStackTrace();
         }
         return networkManager;
     }
 
-    private void init() throws SocketException {
+    private void init() {
 
         this.routeTable = new RouteTable();
 
@@ -64,11 +66,12 @@ public class NetworkManager {
         this.gossipManager.start();
 
         this.heartBeatManager = new HeartBeatManager();
-        //Fixme this.heartBeatManager.start()
+        this.heartBeatManager.start();
 
         this.searchManager = new SearchManager();
         this.searchManager.start();
 
+        logger.info("Bootstrap connecting....");
         this.bootstrapManger = new BootstrapManger();
         this.bootstrapManger.connectBootstrapServer(BOOTSTRAP_SERVER_IP, BOOTSTRAP_SERVER_PORT);
 
@@ -126,6 +129,7 @@ public class NetworkManager {
 
     // Returns the IP Address of the Node, works only for Linux and Windows
     private InetAddress findIP() throws SocketException {
+
         try (final DatagramSocket socket = new DatagramSocket()) {
             socket.connect(InetAddress.getByName("8.8.8.8"), 10002);
             return socket.getInetAddress();
@@ -150,6 +154,15 @@ public class NetworkManager {
      */
     public void search(String name, IContentSearch app) {
         this.searchManager.sendSearchRequest(name, app);
+    }
+
+    public void stop () {
+        this.bootstrapManger.disconnectBootstrapServer(BOOTSTRAP_SERVER_IP, BOOTSTRAP_SERVER_PORT);
+        //TODO off different ports
+    }
+
+    public void start() {
+        this.init();
     }
 
 }

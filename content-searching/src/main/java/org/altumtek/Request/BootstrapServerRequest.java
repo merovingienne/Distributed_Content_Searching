@@ -13,12 +13,13 @@ public class BootstrapServerRequest extends BaseRequest{
 
     private List<RouteTable.Node> neighbourList = new ArrayList<>();
 
-    public BootstrapServerRequest(RequestType type, InetAddress myIP, int myPort, String myName) {
+    public BootstrapServerRequest(RequestType type) {
         if (type == RequestType.REG) {
             message = String.format("REG %s %d %s", this.senderIP, this.senderPort,
                     NetworkManager.getInstance().getUserName());
         } else if (type == RequestType.UNREG) {
-            message = String.format("UNREG %s %d %s", myIP, myPort, myName);
+            message = String.format("UNREG %s %d %s", this.senderIP, this.senderPort,
+                    NetworkManager.getInstance().getUserName());
         } else {
             throw new RuntimeException("Invalid request type"); // Todo replace with custom exception
         }
