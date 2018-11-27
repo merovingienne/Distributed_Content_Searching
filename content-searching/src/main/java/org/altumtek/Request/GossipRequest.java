@@ -24,8 +24,8 @@ public class GossipRequest extends BaseRequest {
      *
      * @param nodeList
      */
-    public GossipRequest(List<RouteTable.Node> nodeList) {
-        this.type = RequestType.GOSSIP;
+    public GossipRequest(RequestType type, List<RouteTable.Node> nodeList) {
+        this.type = type;
 
         String nodeMsg = nodeList
                 .stream()
@@ -36,7 +36,6 @@ public class GossipRequest extends BaseRequest {
                 .concat(serializationUtil(this.senderIP.getHostAddress()))
                 .concat(serializationUtil(Integer.toString(this.senderPort)))
                 .concat(serializationUtil(nodeMsg));
-
     }
 
     /**
@@ -48,7 +47,7 @@ public class GossipRequest extends BaseRequest {
     public GossipRequest(String msg) throws UnknownHostException {
         StringTokenizer tokenizer = new StringTokenizer(msg, "0");
 
-        tokenizer.nextToken(); // request type
+        this.type = RequestType.valueOf(tokenizer.nextToken().toUpperCase());
 
         this.senderIP = InetAddress.getByName(tokenizer.nextToken());
         this.senderPort = Integer.parseInt(tokenizer.nextToken());
