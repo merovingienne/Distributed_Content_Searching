@@ -24,7 +24,7 @@ public class BootstrapServerRequest extends BaseRequest{
             message = String.format(" REG %s %d %s", this.senderIP.getHostAddress(), this.senderPort,
                     NetworkManager.getInstance().getUserName());
         } else if (type == RequestType.UNREG) {
-            this.message.concat(this.type.name())
+            this.message="".concat(this.type.name())
                     .concat(this.senderIP.getHostAddress())
                     .concat(String.valueOf(this.senderPort))
                     .concat(NetworkManager.getInstance().getUserName());

@@ -14,7 +14,7 @@ public class LeaveRequest extends BaseRequest {
 
     public LeaveRequest() {
         this.type = RequestType.LEAVE;
-        this.message.concat(serializationUtil(this.type.name()))
+        this.message="".concat(serializationUtil(this.type.name()))
                 .concat(serializationUtil(this.senderIP.getHostAddress()))
                 .concat(serializationUtil(Integer.toString(this.senderPort)));
     }

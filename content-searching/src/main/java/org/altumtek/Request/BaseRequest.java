@@ -43,7 +43,7 @@ public abstract class BaseRequest {
         // TODO   Complete this.
         String packetData = new String(newPacket.getData(), 0, newPacket.getLength());
         logger.info("Receiving : "+packetData);
-
+        packetData = packetData.replace("/","");
         String len = packetData.split(" ")[0];
         String type = packetData.split(" ")[1];
         String remainingMessage = packetData.substring(4);
@@ -97,7 +97,8 @@ public abstract class BaseRequest {
      */
     public void send(InetAddress IP, int port, DatagramSocket socket) throws IOException {
         String newMsg = setLength(this.message);
-        logger.info("Sending : "+newMsg);
+        newMsg = newMsg.replace("/","");
+        logger.info("Sending : "+this.type.name()+" :  "+newMsg);
         DatagramPacket packet = new DatagramPacket(newMsg.getBytes(), 0, newMsg.getBytes().length);
         packet.setAddress(IP);
         packet.setPort(port);

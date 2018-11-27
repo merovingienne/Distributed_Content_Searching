@@ -32,7 +32,7 @@ public class GossipRequest extends BaseRequest {
                 .map(node -> node.ip + " " + node.port)
                 .collect(Collectors.joining(" "));
 
-        this.message.concat(serializationUtil(this.type.name()))
+        this.message = "".concat(serializationUtil(this.type.name()))
                 .concat(serializationUtil(this.senderIP.getHostAddress()))
                 .concat(serializationUtil(Integer.toString(this.senderPort)))
                 .concat(serializationUtil(nodeMsg));

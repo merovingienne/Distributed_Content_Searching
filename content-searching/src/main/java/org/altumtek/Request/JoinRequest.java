@@ -14,7 +14,7 @@ public class JoinRequest extends BaseRequest {
 
     public JoinRequest() {
         this.type = RequestType.JOIN;
-        this.message.concat(serializationUtil(this.type.name()))
+        this.message = "".concat(serializationUtil(this.type.name()))
                 .concat(serializationUtil(this.senderIP.getHostAddress()))
                 .concat(serializationUtil(Integer.toString(this.senderPort)));
     }

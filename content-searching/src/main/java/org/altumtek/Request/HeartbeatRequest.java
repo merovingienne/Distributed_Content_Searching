@@ -19,7 +19,7 @@ public class HeartbeatRequest extends BaseRequest {
         this.senderIP = senderIP;
         this.senderPort = senderPort;
 
-        this.message.concat(serializationUtil(this.type.name()))
+        this.message = "".concat(serializationUtil(this.type.name()))
                 .concat(serializationUtil(this.senderIP.getHostAddress()))
                 .concat(serializationUtil(Integer.toString(this.senderPort)));
     }
