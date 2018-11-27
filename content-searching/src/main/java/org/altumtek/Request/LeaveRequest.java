@@ -1,22 +1,20 @@
 package org.altumtek.Request;
 
-import java.net.InetAddress;
-
 /**
  * Created by chanuka on 11/24/18.
  */
 public class LeaveRequest extends BaseRequest {
-    private final String command = "LEAVE";
-    private final String response = "LEAVEOK";
 
-    public LeaveRequest(InetAddress senderIP, int senderPort){
+    public LeaveRequest() {
         this.type = RequestType.LEAVE;
-        this.senderIP = senderIP;
-        this.senderPort = senderPort;
+        this.message.concat(serializationUtil(this.type.name()))
+                .concat(serializationUtil(this.senderIP.getHostAddress()))
+                .concat(serializationUtil(Integer.toString(this.senderPort)));
     }
 
-    @Override
-    public String getCommand(){
-        return command;
+    public LeaveRequest(int value) {
+        this.type = RequestType.LEAVEOK;
+        this.message.concat(serializationUtil(this.type.name()))
+                .concat(String.valueOf(value));
     }
 }
