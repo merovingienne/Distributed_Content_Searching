@@ -1,22 +1,53 @@
 package org.altumtek.Request;
 
 import java.net.InetAddress;
+import java.net.UnknownHostException;
+import java.util.StringTokenizer;
 
 /**
  * Created by chanuka on 11/24/18.
  */
 public class LeaveRequest extends BaseRequest {
-    private final String command = "LEAVE";
-    private final String response = "LEAVEOK";
 
-    public LeaveRequest(InetAddress senderIP, int senderPort){
+    InetAddress leavingMemberIP;
+    int leavingMemberPort;
+
+    public LeaveRequest() {
         this.type = RequestType.LEAVE;
-        this.senderIP = senderIP;
-        this.senderPort = senderPort;
+        this.message.concat(serializationUtil(this.type.name()))
+                .concat(serializationUtil(this.senderIP.getHostAddress()))
+                .concat(serializationUtil(Integer.toString(this.senderPort)));
     }
 
-    @Override
-    public String getCommand(){
-        return command;
+    public LeaveRequest(int value) {
+        this.type = RequestType.LEAVEOK;
+        this.message.concat(serializationUtil(this.type.name()))
+                .concat(String.valueOf(value));
+    }
+
+    public LeaveRequest(String msg) throws UnknownHostException {
+        StringTokenizer tokenizer = new StringTokenizer(msg, " ");
+        String command = tokenizer.nextToken();
+        if (command.equals(RequestType.LEAVE.name())) {
+            this.type = RequestType.LEAVE;
+            this.leavingMemberIP = InetAddress.getByName(tokenizer.nextToken());
+            this.leavingMemberPort = Integer.parseInt(tokenizer.nextToken());
+        } else if (command.equals(RequestType.LEAVEOK.name())) {
+            int value = Integer.parseInt(tokenizer.nextToken());
+            if (value == 0) {
+                this.type = RequestType.LEAVEOK;
+            } else if (value == 9999) {
+                this.type = RequestType.ERROR;
+            }
+        }
+    }
+
+
+    public InetAddress getLeavingMemberIP() {
+        return leavingMemberIP;
+    }
+
+    public int getLeavingMemberPort() {
+        return leavingMemberPort;
     }
 }

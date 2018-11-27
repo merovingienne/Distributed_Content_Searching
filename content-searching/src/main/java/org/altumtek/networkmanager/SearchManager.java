@@ -1,5 +1,6 @@
 package org.altumtek.networkmanager;
 
+import org.altumtek.Request.RequestType;
 import org.altumtek.Request.SearchRequest;
 import org.altumtek.networkmanager.utils.IContentSearch;
 
@@ -13,7 +14,7 @@ public class SearchManager {
     private static final int SEARCH_HANDLE_PERIOD = 400;
     private final BlockingQueue<SearchRequest> searchRequestQueue = new LinkedBlockingQueue<>();
     private final Map<String, IContentSearch> searchQueries = new ConcurrentHashMap<>();
-
+    private ArrayList<UUID> receivedList = new ArrayList<>();
     void start() {
         this.handleSearchRequest();
     }
@@ -21,9 +22,7 @@ public class SearchManager {
     public void sendSearchRequest(String searchName, IContentSearch app) {
         searchQueries.put(searchName, app);
         SearchRequest request = new SearchRequest(
-                SearchRequest.SearchRequestType.SEARCH,
-                NetworkManager.getInstance().getIpAddress(),
-                NetworkManager.getInstance().getPort(),
+                RequestType.SER,
                 searchName
                 );
 
@@ -43,22 +42,31 @@ public class SearchManager {
         int port = searchRequest.getResultOwnerPort();
         IContentSearch searchApp = searchQueries.get(searchName);
         searchApp.onSearchResults(fileOwner, port, files);
-
     }
 
     private void replySearchRequest(SearchRequest searchRequest) {
+        if (receivedList.contains(searchRequest.getIdentifier())) {
+            return;
+        }
+
+        receivedList.add(searchRequest.getIdentifier());
         String searchName = searchRequest.getSearchName();
         List<String> matchningFiles = new ArrayList<>(); //Todo find matching files
-        SearchRequest replyRequest = new SearchRequest(
-                SearchRequest.SearchRequestType.RESULT,
-                matchningFiles,
-                NetworkManager.getInstance().getIpAddress(),
-                NetworkManager.getInstance().getPort(),
-                searchRequest.getSearchName()
-        );
-        NetworkManager.getInstance().sendMessages(replyRequest,
-                searchRequest.getSearcherIP(),
-                searchRequest.getSearcherPort());
+        if (matchningFiles.size() > 0) {
+            SearchRequest replyRequest = new SearchRequest(
+                    RequestType.SEROK,
+                    matchningFiles,
+                    searchRequest.getHopsCount() + 1
+            );
+            NetworkManager.getInstance().sendMessages(replyRequest,
+                    searchRequest.getSearcherIP(),
+                    searchRequest.getSearcherPort());
+        } else {
+            searchRequest.incrementHops();
+            for (RouteTable.Node node: NetworkManager.getInstance().getRouteTable().getNeighbourList()) {
+                NetworkManager.getInstance().sendMessages(searchRequest, node.ip, node.port);
+            }
+        }
     }
 
     private void handleSearchRequest() {
@@ -68,11 +76,11 @@ public class SearchManager {
                 while (searchRequestQueue.size()>0) {
                     try {
                         SearchRequest searchRequest = searchRequestQueue.take();
-                        switch (searchRequest.getSearchRequestType()) {
-                            case SEARCH:
+                        switch (searchRequest.getType()) {
+                            case SER:
                                 replySearchRequest(searchRequest);
                                 break;
-                            case RESULT:
+                            case SEROK:
                                 processSearchReply(searchRequest);
                                 break;
                         }

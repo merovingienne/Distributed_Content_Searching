@@ -37,31 +37,46 @@ public abstract class BaseRequest {
      * @return
      */
 
-    public static BaseRequest deserialize(DatagramPacket newPacket){
+    public static BaseRequest deserialize(DatagramPacket newPacket) throws UnknownHostException {
         // TODO   Complete this.
         String packetData = new String(newPacket.getData(), 0, newPacket.getLength());
         String len = packetData.split(" ")[0];
         String type = packetData.split(" ")[1];
-        String remainingMessage = ""; // TODO Complete this.
+        String remainingMessage = packetData.substring(4);
 
-        BaseRequest newRequest = new DummyRequest();
+        BaseRequest newRequest = null;
 
         switch (RequestType.valueOf(type)){
             case ACK:
-//                newRequest = new AcknowledgementRequest();
                 break;
             case BSC:
                 break;
             case GOSSIP:
-//                newRequest = new GossipRequest(remainingMessage);
-//                newRequest = new GossipRequest();
-                break;
+                return new GossipRequest(remainingMessage);
+            case GOSSIPOK:
+                return new GossipRequest(remainingMessage);
             case HEARTBEAT:
-//                newRequest = new HeartbeatRequest();
-                break;
+                return new HeartbeatRequest(remainingMessage);
+            case JOIN:
+                return new JoinRequest(remainingMessage);
+            case JOINOK:
+                return new JoinRequest(remainingMessage);
+            case LEAVE:
+                return new LeaveRequest(remainingMessage);
+            case LEAVEOK:
+                return new LeaveRequest(remainingMessage);
             case SER:
-//                newRequest = new SearchRequest();
-                break;
+                return new SearchRequest(remainingMessage);
+            case SEROK:
+                return new SearchRequest(remainingMessage);
+            case REG:
+                return new BootstrapServerRequest(remainingMessage);
+            case REGOK:
+                return new BootstrapServerRequest(remainingMessage);
+            case UNREG:
+                return new BootstrapServerRequest(remainingMessage);
+            case UNREGOK:
+                return new BootstrapServerRequest(remainingMessage);
         }
 
         return newRequest;

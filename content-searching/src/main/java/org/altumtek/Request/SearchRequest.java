@@ -5,66 +5,54 @@ import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.StringTokenizer;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 public class SearchRequest extends BaseRequest{
 
-    public enum SearchRequestType {
-        SEARCH,
-        RESULT
-    }
-
-    private SearchRequestType searchRequestType;
     private InetAddress searcherIP;
     private int searcherPort;
     private InetAddress resultOwnerIP;
     private int resultOwnerPort;
     private String searchName;
     private List<String> fileNames;
+    private int hops = 0;
+    private UUID identifier;
 
-    public SearchRequest(SearchRequestType searchRequestType, InetAddress senderIP, int senderPort, String searchName) {
-        this.type = RequestType.SEARCH;
-        //Todo
-//        if (searchRequestType != SearchRequestType.SEARCH)
-//            throw new InvalidRequestException ()
-        this.searchRequestType = SearchRequestType.SEARCH;
-        String msg = String.format("SEARCH-%s-%d-%s", senderIP.getHostAddress(), senderPort, searchName);
-        super.data.put("msg", msg);
+    public SearchRequest(RequestType searchRequestType, String searchName) {
+        this.type = RequestType.SER;
+        this.identifier = UUID.randomUUID();
+        this.message= String.format("SER %s %d %s %d %s", senderIP.getHostAddress(), senderPort, searchName, hops, identifier.toString());
     }
 
-    public SearchRequest(SearchRequestType searchRequestType, List<String> files, InetAddress fileOwnerIP, int fileOwnerPort, String searchName) {
-        this.type = RequestType.SEARCH;
-        this.searchRequestType = searchRequestType;
-        //Todo
-//        if (searchRequestType != SearchRequestType.SEARCH)
-//            throw new InvalidRequestException ()
-        String msg = files.stream().collect(Collectors.joining("-"));
-        msg = String.format("RESULT-%s-%d-%s-%d",fileOwnerIP.getHostAddress(),fileOwnerPort, searchName, files.size())+msg;
-        super.data.put("msg", msg);
+    public SearchRequest(RequestType searchRequestType, List<String> files, int hops) {
+        this.type = RequestType.SEROK;
+        String msg = files.stream().collect(Collectors.joining(" "));
+        this.message = String.format("SEROK %d %s %d %d", files.size(),this.senderIP, this.senderPort, hops)+msg;
     }
 
     public SearchRequest(String msg) throws UnknownHostException {
-        StringTokenizer tokenizer = new StringTokenizer(msg, "-");
+        StringTokenizer tokenizer = new StringTokenizer(msg, " ");
         String searchType = tokenizer.nextToken();
 
-        if(searchType.equals("SEARCH")) {
-            this.searchName = tokenizer.nextToken();
+        if(searchType.equals("SER")) {
+            this.type = RequestType.SER;
             this.searcherIP = InetAddress.getByName(tokenizer.nextToken());
             this.searcherPort = Integer.valueOf(tokenizer.nextToken());
-        } else if(searchType.equals("RESULT")) {
+            this.searchName = tokenizer.nextToken();
+            this.hops = Integer.parseInt(tokenizer.nextToken());
+            this.identifier = UUID.fromString(tokenizer.nextToken());
+        } else if(searchType.equals("SEROK")) {
+            this.type = RequestType.SEROK;
+            int fileCount = Integer.valueOf(tokenizer.nextToken());
             this.resultOwnerIP = InetAddress.getByName(tokenizer.nextToken());
             this.resultOwnerPort = Integer.valueOf(tokenizer.nextToken());
-            this.searchName = tokenizer.nextToken();
+            this.hops = Integer.parseInt(tokenizer.nextToken());
             fileNames = new ArrayList<>();
-            int fileCount = Integer.valueOf(tokenizer.nextToken());
             for (int i = 0; i < fileCount; i++) {
                 fileNames.add(tokenizer.nextToken());
             }
         }
-    }
-
-    public SearchRequestType getSearchRequestType() {
-        return searchRequestType;
     }
 
     public InetAddress getSearcherIP() {
@@ -89,5 +77,17 @@ public class SearchRequest extends BaseRequest{
 
     public List<String> getFileNames() {
         return fileNames;
+    }
+
+    public void incrementHops(){
+        this.hops += 1;
+    }
+
+    public int getHopsCount(){
+        return this.hops;
+    }
+
+    public UUID getIdentifier(){
+        return identifier;
     }
 }

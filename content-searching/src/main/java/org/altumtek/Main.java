@@ -17,10 +17,10 @@ public class Main {
             // Connect to bootstrap server
             // Start finding neighbours using Gossiping
             // Start sending heartbeats
-            NetworkManager.getInstance();
+            NetworkManager.getInstance().start();
 
             // Send a search query
-            NetworkManager.getInstance().search("git", this);
+//            NetworkManager.getInstance().search("git", this);
         }
 
         @Override
