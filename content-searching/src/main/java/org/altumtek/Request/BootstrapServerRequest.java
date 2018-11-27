@@ -16,13 +16,13 @@ public class BootstrapServerRequest extends BaseRequest{
     public BootstrapServerRequest(RequestType type) {
         this.type = type;
         if (type == RequestType.REG) {
-            this.message.concat(this.type.name())
-                    .concat(this.senderIP.getHostAddress())
-                    .concat(String.valueOf(this.senderPort))
-                    .concat(NetworkManager.getInstance().getUserName());
+//            this.message.concat(this.type.name())
+//                    .concat(this.senderIP.getHostAddress())
+//                    .concat(String.valueOf(this.senderPort))
+//                    .concat(NetworkManager.getInstance().getUserName());
 
-//            message = String.format(" REG %s %d %s", this.senderIP, this.senderPort,
-//                    NetworkManager.getInstance().getUserName());
+            message = String.format(" REG %s %d %s", this.senderIP, this.senderPort,
+                    NetworkManager.getInstance().getUserName());
         } else if (type == RequestType.UNREG) {
             this.message.concat(this.type.name())
                     .concat(this.senderIP.getHostAddress())
