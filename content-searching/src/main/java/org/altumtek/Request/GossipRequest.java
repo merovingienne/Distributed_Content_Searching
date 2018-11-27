@@ -45,7 +45,7 @@ public class GossipRequest extends BaseRequest {
      * @throws UnknownHostException
      */
     public GossipRequest(String msg) throws UnknownHostException {
-        StringTokenizer tokenizer = new StringTokenizer(msg, "0");
+        StringTokenizer tokenizer = new StringTokenizer(msg, " ");
 
         this.type = RequestType.valueOf(tokenizer.nextToken().toUpperCase());
 
