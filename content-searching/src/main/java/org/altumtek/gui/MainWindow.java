@@ -10,7 +10,8 @@ import java.awt.event.ActionListener;
 public class MainWindow {
     private JButton showNeighboursButton;
     private JPanel jPanel;
-    private JButton Search;
+    private JButton searchButton;
+    private JTextField textField1;
 
     MainWindow(){
         NetworkManager.getInstance().start();
@@ -21,6 +22,12 @@ public class MainWindow {
                 for (RouteTable.Node node: NetworkManager.getInstance().getRouteTable().getNeighbourList()) {
                     System.out.println(node.ip+":"+node.port);
                 }
+            }
+        });
+        searchButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent actionEvent) {
+                String search = textField1.getText();
             }
         });
 
