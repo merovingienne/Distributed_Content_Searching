@@ -1,5 +1,6 @@
 package org.altumtek.gui;
 
+import org.altumtek.filemanager.FileManager;
 import org.altumtek.networkmanager.NetworkManager;
 import org.altumtek.networkmanager.RouteTable;
 
@@ -28,6 +29,15 @@ public class MainWindow {
             @Override
             public void actionPerformed(ActionEvent actionEvent) {
                 String search = textField1.getText();
+            }
+        });
+        showFilesButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent actionEvent) {
+                System.out.println("My files");
+                for (String file: FileManager.getIntance().getMyFiles()) {
+                    System.out.println(file);
+                }
             }
         });
 
