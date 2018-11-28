@@ -25,17 +25,17 @@ public class JoinManager {
         this.cleanUpReceivedRequestList();
     }
 
-    public void sendJoinRequest(RouteTable.Node node) {
+    public boolean sendJoinRequest(RouteTable.Node node) {
         // return if node is self.
         if(Objects.equals(node.getIp().getHostAddress(), NetworkManager.getInstance().getIpAddress().getHostAddress())){
             if (node.port == NetworkManager.getInstance().getPort()) {
-                return;
+                return false;
             }
         }
 
         // return if node already joined
         if (NetworkManager.getInstance().getRouteTable().containsNode(node.getIp(), node.getPort())){
-            return;
+            return false;
         }
 
         JoinRequest req = new JoinRequest();
@@ -49,6 +49,7 @@ public class JoinManager {
                 node.ip,
                 node.port
         );
+        return true;
     }
 
 
