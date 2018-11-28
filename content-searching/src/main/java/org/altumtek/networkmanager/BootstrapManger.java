@@ -30,9 +30,9 @@ public class BootstrapManger {
     }
 
     public void joinNetwork() {
-        JoinRequest joinRequest = new JoinRequest();
+//        JoinRequest joinRequest = new JoinRequest();
         for (RouteTable.Node node: NetworkManager.getInstance().getRouteTable().getNeighbourList()){
-            NetworkManager.getInstance().sendMessages(joinRequest, node.ip, node.port);
+            NetworkManager.getInstance().getJoinManager().sendJoinRequest(node);
         }
     }
 
@@ -49,7 +49,8 @@ public class BootstrapManger {
                 RequestType.REGOK) {
             BootstrapServerRequest bootstrapServerRequest = (BootstrapServerRequest)request;
             for (RouteTable.Node node: bootstrapServerRequest.getNeighbourList()) {
-                NetworkManager.getInstance().getRouteTable().addNeighbour(node);
+//                NetworkManager.getInstance().getRouteTable().addNeighbour(node);
+                NetworkManager.getInstance().getJoinManager().sendJoinRequest(node);
             }
 
             this.joinNetwork();
@@ -57,18 +58,6 @@ public class BootstrapManger {
         } else if (request.getType() ==
                 RequestType.UNROK) {
             this.leaveNetwork();
-        } else if (request.getType() == RequestType.JOIN) {
-            JoinRequest joinRequest = (JoinRequest)request;
-            NetworkManager.getInstance().getRouteTable().addNeighbour(
-                    new RouteTable.Node(
-                            true,
-                            joinRequest.getNewMemberIP(),
-                            joinRequest.getNewMemberPort())
-            );
-            JoinRequest replyJoin = new JoinRequest(0);
-            NetworkManager.getInstance().sendMessages(replyJoin, joinRequest.getNewMemberIP(), joinRequest.getNewMemberPort());
-        } else if(request.getType() == RequestType.JOINOK) {
-
         } else if(request.getType() == RequestType.LEAVE) {
             LeaveRequest leaveRequest = (LeaveRequest) request;
             NetworkManager.getInstance().getRouteTable().removeNeighbour(new RouteTable.Node(
