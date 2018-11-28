@@ -127,38 +127,39 @@ public class NetworkManager {
     }
 
     private static InetAddress findIP() throws UnknownHostException {
-        try {
-            InetAddress candidateAddress = null;
-            for (Enumeration ifaces = NetworkInterface.getNetworkInterfaces(); ifaces.hasMoreElements(); ) {
-                NetworkInterface iface = (NetworkInterface) ifaces.nextElement();
-                for (Enumeration inetAddrs = iface.getInetAddresses(); inetAddrs.hasMoreElements(); ) {
-                    InetAddress inetAddr = (InetAddress) inetAddrs.nextElement();
-                    if (!inetAddr.isLoopbackAddress()) {
-
-                        if (inetAddr.isSiteLocalAddress()) {
-                            return inetAddr;
-                        } else if (candidateAddress == null) {
-                            candidateAddress = inetAddr;
-                        }
-                    }
-                }
-            }
-            if (candidateAddress != null) {
-                return candidateAddress;
-            }
-
-            InetAddress jdkSuppliedAddress = InetAddress.getLocalHost();
-            if (jdkSuppliedAddress == null) {
-                throw new UnknownHostException("The JDK InetAddress.getLocalHost() method unexpectedly returned null.");
-            }
-
-            return jdkSuppliedAddress;
-
-        } catch (Exception e) {
-            UnknownHostException unknownHostException = new UnknownHostException("Failed to determine LAN address: " + e);
-            unknownHostException.initCause(e);
-            throw unknownHostException;
-        }
+        return InetAddress.getByName("192.168.8.104");
+//        try {
+//            InetAddress candidateAddress = null;
+//            for (Enumeration ifaces = NetworkInterface.getNetworkInterfaces(); ifaces.hasMoreElements(); ) {
+//                NetworkInterface iface = (NetworkInterface) ifaces.nextElement();
+//                for (Enumeration inetAddrs = iface.getInetAddresses(); inetAddrs.hasMoreElements(); ) {
+//                    InetAddress inetAddr = (InetAddress) inetAddrs.nextElement();
+//                    if (!inetAddr.isLoopbackAddress()) {
+//
+//                        if (inetAddr.isSiteLocalAddress()) {
+//                            return inetAddr;
+//                        } else if (candidateAddress == null) {
+//                            candidateAddress = inetAddr;
+//                        }
+//                    }
+//                }
+//            }
+//            if (candidateAddress != null) {
+//                return candidateAddress;
+//            }
+//
+//            InetAddress jdkSuppliedAddress = InetAddress.getLocalHost();
+//            if (jdkSuppliedAddress == null) {
+//                throw new UnknownHostException("The JDK InetAddress.getLocalHost() method unexpectedly returned null.");
+//            }
+//
+//            return jdkSuppliedAddress;
+//
+//        } catch (Exception e) {
+//            UnknownHostException unknownHostException = new UnknownHostException("Failed to determine LAN address: " + e);
+//            unknownHostException.initCause(e);
+//            throw unknownHostException;
+//        }
     }
 
 

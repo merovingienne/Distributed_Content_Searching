@@ -25,10 +25,10 @@ public class SearchRequest extends BaseRequest{
         this.message= String.format("SER %s %d %s %d %s", senderIP.getHostAddress(), senderPort, searchName, hops, identifier.toString());
     }
 
-    public SearchRequest(RequestType searchRequestType, List<String> files, int hops) {
+    public SearchRequest(RequestType searchRequestType, List<String> files, int hops, UUID identifier) {
         this.type = RequestType.SEROK;
         String msg = files.stream().collect(Collectors.joining(" "));
-        this.message = String.format("SEROK %d %s %d %d", files.size(),this.senderIP, this.senderPort, hops)+msg;
+        this.message = String.format("SEROK %d %s %d %d %s", files.size(),this.senderIP, this.senderPort, hops, identifier.toString())+msg;
     }
 
     public SearchRequest(String msg) throws UnknownHostException {
@@ -48,6 +48,7 @@ public class SearchRequest extends BaseRequest{
             this.resultOwnerIP = InetAddress.getByName(tokenizer.nextToken());
             this.resultOwnerPort = Integer.valueOf(tokenizer.nextToken());
             this.hops = Integer.parseInt(tokenizer.nextToken());
+            this.identifier = UUID.fromString(tokenizer.nextToken());
             fileNames = new ArrayList<>();
             for (int i = 0; i < fileCount; i++) {
                 fileNames.add(tokenizer.nextToken());
@@ -79,8 +80,15 @@ public class SearchRequest extends BaseRequest{
         return fileNames;
     }
 
-    public void incrementHops(){
+    public void prepareForward(){
         this.hops += 1;
+        this.message= String.format("SER %s %d %s %d %s",
+                this.senderIP.getHostAddress(),
+                this.searcherPort,
+                this.searchName,
+                this.hops,
+                this.identifier.toString());
+
     }
 
     public int getHopsCount(){

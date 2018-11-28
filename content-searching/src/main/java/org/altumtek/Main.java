@@ -18,6 +18,7 @@ public class Main {
             // Start finding neighbours using Gossiping
             // Start sending heartbeats
             NetworkManager.getInstance().start();
+//            NetworkManager.getInstance().search("GOT", this);
 
             // Send a search query
 //            NetworkManager.getInstance().search("git", this);
