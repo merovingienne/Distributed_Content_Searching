@@ -26,8 +26,24 @@ public class JoinManager {
     }
 
     public void sendJoinRequest(RouteTable.Node node) {
+        // return if node is self.
+        if(Objects.equals(node.getIp().getHostAddress(), NetworkManager.getInstance().getIpAddress().getHostAddress())){
+            if (node.port == NetworkManager.getInstance().getPort()) {
+                return;
+            }
+        }
+
+        // return if node already joined
+        if (NetworkManager.getInstance().getRouteTable().containsNode(node.getIp(), node.getPort())){
+            return;
+        }
+
         JoinRequest req = new JoinRequest();
+        req.setNewMemberIP(node.ip);
+        req.setNewMemberPort(node.port);
         this.sentList.put(req.getIdentifier(), req);
+
+
         NetworkManager.getInstance().sendMessages(
                 req,
                 node.ip,
@@ -36,6 +52,12 @@ public class JoinManager {
     }
 
 
+    /**
+     * Method for join request receiver (JOIN) to save neighbour
+     * and reply back.
+     * @param incomingRequest
+     */
+
     public void replyJoinRequest(JoinRequest incomingRequest) {
         if (receivedList.containsKey(incomingRequest.getIdentifier())) {
             return;
@@ -43,6 +65,7 @@ public class JoinManager {
 
         receivedList.put(incomingRequest.getIdentifier(), Instant.now());
 
+        // add neighbour
         NetworkManager.getInstance().getRouteTable().addNeighbour(new RouteTable.Node(
                 false,
                 incomingRequest.getNewMemberIP(),
@@ -50,13 +73,19 @@ public class JoinManager {
 
         JoinRequest response = new JoinRequest(0, incomingRequest.getIdentifier());
 
+        // send back reply JOINOK
         NetworkManager.getInstance().sendMessages(
                 response,
-                incomingRequest.getSenderIP(),
-                incomingRequest.getSenderPort()
+                incomingRequest.getNewMemberIP(),
+                incomingRequest.getNewMemberPort()
         );
     }
 
+
+    /**
+     * Method for join response receiver to save neighbour
+     * @param incomingResponse
+     */
     public void handleJoinResponse(JoinRequest incomingResponse){
         if (!sentList.containsKey(incomingResponse.getSenderIdentifier())){
             return;

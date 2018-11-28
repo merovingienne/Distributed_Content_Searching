@@ -49,7 +49,8 @@ public class BootstrapManger {
                 RequestType.REGOK) {
             BootstrapServerRequest bootstrapServerRequest = (BootstrapServerRequest)request;
             for (RouteTable.Node node: bootstrapServerRequest.getNeighbourList()) {
-                NetworkManager.getInstance().getRouteTable().addNeighbour(node);
+//                NetworkManager.getInstance().getRouteTable().addNeighbour(node);
+                NetworkManager.getInstance().getJoinManager().sendJoinRequest(node);
             }
 
             this.joinNetwork();

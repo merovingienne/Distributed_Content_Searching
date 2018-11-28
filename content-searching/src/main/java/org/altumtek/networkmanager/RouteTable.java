@@ -12,10 +12,10 @@ public class RouteTable {
     private final List<Node> neighbourList = (new ArrayList<>());
 
     public synchronized void addNeighbour(Node node) {
-
-        if (Objects.equals(node.getIp().getHostAddress(), NetworkManager.getInstance().getIpAddress().getHostAddress())
-                && node.port == NetworkManager.getInstance().getPort()) {
-            return;
+        if(Objects.equals(node.getIp().getHostAddress(), NetworkManager.getInstance().getIpAddress().getHostAddress())){
+            if (node.port == NetworkManager.getInstance().getPort()) {
+                return;
+            }
         }
 
         int currentIndex = -1;
@@ -48,9 +48,12 @@ public class RouteTable {
         return new ArrayList<>(neighbourList);
     }
 
-    public boolean containsNode(InetAddress inetAddress) {
+    public boolean containsNode(InetAddress inetAddress, int port) {
         for (Node d : neighbourList) {
-            if (d.ip.equals(inetAddress)) return true;
+            if (d.ip.getHostAddress().equalsIgnoreCase(inetAddress.getHostAddress()) && d.port == port) {
+                System.out.println("\n\nNode already known: " + d.ip.getHostAddress() + ", " + d.port);
+                return true;
+            }
         }
         return false;
     }

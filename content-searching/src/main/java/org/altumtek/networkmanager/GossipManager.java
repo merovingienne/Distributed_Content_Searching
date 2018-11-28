@@ -24,7 +24,8 @@ public class GossipManager {
 
     private void processGossipReply(GossipRequest gossipRequest) {
         List<RouteTable.Node> newNodeList = gossipRequest.getNeighbourList().stream()
-                .filter(neighbour -> NetworkManager.getInstance().getRouteTable().containsNode(neighbour.ip))
+                .filter(neighbour -> !NetworkManager.getInstance()
+                        .getRouteTable().containsNode(neighbour.ip, neighbour.port))
                 .collect(Collectors.toList());
 
         for (RouteTable.Node node : newNodeList) {

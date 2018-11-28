@@ -51,8 +51,16 @@ public class JoinRequest extends BaseRequest {
         return newMemberIP;
     }
 
+    public void setNewMemberIP(InetAddress IP){
+        this.newMemberIP = IP;
+    }
+
     public int getNewMemberPort() {
         return newMemberPort;
+    }
+
+    public void setNewMemberPort(int port){
+        this.newMemberPort = port;
     }
 
     public UUID getIdentifier() { return this.identifier; }
