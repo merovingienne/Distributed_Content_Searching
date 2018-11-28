@@ -50,12 +50,29 @@ public class HeartBeatManager {
 
                 for (RouteTable.Node node : removingNodes) {
                     NetworkManager.getInstance().getRouteTable().removeNeighbour(node);
+                    logger.info("Removed the node: " + node.getIp() + " : " + node.port
+                            + " From the routing table of node: " + NetworkManager.getInstance().getIpPort() + "Current Timestamp - " + System.currentTimeMillis() + "  Node's Old Timestamp " + node.getTimestamp().getTime());
                 }
 
-                // Clear the removingNodes
                 removingNodes.clear();
+
             }
         }, 0, NODE_EXPIRE);
+
+//        new Timer().schedule(new TimerTask() {
+//            @Override
+//            public void run() {
+//                for (Iterator<RouteTable.Node> it = NetworkManager.getInstance().getRouteTable().getNeighbourList().iterator(); it.hasNext(); ) {
+//                    RouteTable.Node node = it.next();
+//                    if ((node.getTimestamp().getTime() + NODE_EXPIRE) < System.currentTimeMillis()) {
+//                        it.remove();
+//                        logger.info("Current Timestamp - " + System.currentTimeMillis() + " Node's Old Timestamp" + node.getTimestamp().getTime() + "Removed the node: " + node.getIp() + " : " + node.port
+//                                + " From the routing table of node: " + NetworkManager.getInstance().getIpPort());
+//                    }
+//                }
+//
+//            }
+//        }, 0, NODE_EXPIRE);
 
         // Update the timestamp
         new Timer().schedule(new TimerTask() {
@@ -66,10 +83,16 @@ public class HeartBeatManager {
                         HeartbeatRequest hbRequest = heartbeatQueue.take();
                         Optional<RouteTable.Node> node = NetworkManager.getInstance().getRouteTable().getNeighbourList()
                                 .stream()
-                                .filter(n -> n.ip == hbRequest.getSenderIP())
+                                .filter(n -> n.getIp().getHostAddress().equals(hbRequest.getHearbeatOwnerIP().getHostAddress())
+                                        && n.getPort() == hbRequest.getHearbearOwnerPort())
                                 .findFirst();
 
-                        node.ifPresent(node1 -> node1.setTimestamp(new Timestamp(System.currentTimeMillis())));
+                        if (node.isPresent()) {
+                            RouteTable.Node n = node.get();
+                            n.setTimestamp(new Timestamp(System.currentTimeMillis()));
+                            logger.info("Updated timestamp of the node: " + n.getIp().getHostAddress() + " : " + n.port
+                                    + " In the routing table of node: " + NetworkManager.getInstance().getIpPort());
+                        }
 
                     } catch (InterruptedException e) {
                         logger.error("Exception occurred while adding HB message to the queue", e);

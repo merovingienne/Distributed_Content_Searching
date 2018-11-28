@@ -7,7 +7,6 @@ import org.apache.log4j.Logger;
 
 import java.io.IOException;
 import java.net.*;
-import java.util.Enumeration;
 import java.util.Random;
 
 public class NetworkManager {
@@ -91,9 +90,9 @@ public class NetworkManager {
                         heartBeatManager.queueHBMessage((HeartbeatRequest) request);
                     } else if (request instanceof BootstrapServerRequest) {
                         bootstrapManger.handleConnectResponse((BootstrapServerRequest) request);
-                    } else if (request instanceof JoinRequest){
+                    } else if (request instanceof JoinRequest) {
                         bootstrapManger.handleConnectResponse((JoinRequest) request);
-                    }else if (request instanceof SearchRequest) {
+                    } else if (request instanceof SearchRequest) {
                         searchManager.addSearchRequest((SearchRequest) request);
                     }
 
@@ -182,6 +181,10 @@ public class NetworkManager {
 
     public void start() {
         this.init();
+    }
+
+    public String getIpPort() {
+        return IP_ADDRESS.getHostAddress() + " : " + PORT;
     }
 
 }
