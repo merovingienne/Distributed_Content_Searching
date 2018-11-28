@@ -3,8 +3,8 @@ package org.altumtek.networkmanager;
 import java.net.InetAddress;
 import java.sql.Timestamp;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
 public class RouteTable {
 
@@ -12,15 +12,21 @@ public class RouteTable {
     private final List<Node> neighbourList = (new ArrayList<>());
 
     public synchronized void addNeighbour(Node node) {
-        int removeIndex = -1;
+
+        if (Objects.equals(node.getIp().getHostAddress(), NetworkManager.getInstance().getIpAddress().getHostAddress())
+                && node.port == NetworkManager.getInstance().getPort()) {
+            return;
+        }
+
+        int currentIndex = -1;
         for (int i = 0; i < neighbourList.size(); i++) {
-            if (neighbourList.get(i).ip == node.ip && neighbourList.get(i).port == node.port) {
-                removeIndex = i;
+            if (Objects.equals(neighbourList.get(i).ip.getHostAddress(), node.ip.getHostAddress()) && neighbourList.get(i).port == node.port) {
+                currentIndex = i;
                 break;
             }
         }
-        if (removeIndex != -1) {
-            neighbourList.remove(removeIndex);
+        if (currentIndex != -1) {
+            return;
         }
         neighbourList.add(node);
     }
@@ -28,7 +34,7 @@ public class RouteTable {
     public synchronized void removeNeighbour(Node node) {
         int removeIndex = -1;
         for (int i = 0; i < neighbourList.size(); i++) {
-            if (neighbourList.get(i).ip == node.ip && neighbourList.get(i).port == node.port) {
+            if (Objects.equals(neighbourList.get(i).ip.getHostAddress(), node.ip.getHostAddress()) && neighbourList.get(i).port == node.port) {
                 removeIndex = i;
                 break;
             }
