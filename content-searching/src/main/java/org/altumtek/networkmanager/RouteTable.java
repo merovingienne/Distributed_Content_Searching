@@ -8,9 +8,10 @@ import java.util.List;
 
 public class RouteTable {
 
-    private final List<Node> neighbourList = Collections.synchronizedList(new ArrayList<>());
+//    private final List<Node> neighbourList = Collections.synchronizedList(new ArrayList<>());
+    private final List<Node> neighbourList = (new ArrayList<>());
 
-    public void addNeighbour(Node node) {
+    public synchronized void addNeighbour(Node node) {
         int removeIndex = -1;
         for (int i = 0; i < neighbourList.size(); i++) {
             if (neighbourList.get(i).ip == node.ip && neighbourList.get(i).port == node.port) {
@@ -24,7 +25,7 @@ public class RouteTable {
         neighbourList.add(node);
     }
 
-    public void removeNeighbour(Node node) {
+    public synchronized void removeNeighbour(Node node) {
         int removeIndex = -1;
         for (int i = 0; i < neighbourList.size(); i++) {
             if (neighbourList.get(i).ip == node.ip && neighbourList.get(i).port == node.port) {
@@ -38,7 +39,7 @@ public class RouteTable {
     }
 
     public List<Node> getNeighbourList() {
-        return neighbourList;
+        return new ArrayList<>(neighbourList);
     }
 
     public boolean containsNode(InetAddress inetAddress) {
