@@ -73,7 +73,7 @@ public class RouteTable {
             this.primary = primary;
             this.ip = ip;
             this.port = port;
-            this.timestamp = new Timestamp(System.currentTimeMillis() + 10000);
+            this.timestamp = new Timestamp(System.currentTimeMillis() + 50000);
         }
 
         public boolean isPrimary() {
