@@ -14,7 +14,7 @@ import java.util.stream.Collectors;
 public class GossipManager {
 
     private final static int NEIGHBOUR_LIMIT = 4;
-    private final static int GOSSIP_PERIOD = 1000;
+    private final static int GOSSIP_PERIOD = 5000;
     private final BlockingQueue<GossipRequest> gossipRequestQueue = new LinkedBlockingDeque<>();
 
     void start() {

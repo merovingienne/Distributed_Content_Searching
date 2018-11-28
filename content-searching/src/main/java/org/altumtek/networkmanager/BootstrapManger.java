@@ -65,10 +65,16 @@ public class BootstrapManger {
                             joinRequest.getNewMemberIP(),
                             joinRequest.getNewMemberPort())
             );
+            JoinRequest replyJoin = new JoinRequest(0);
+            NetworkManager.getInstance().sendMessages(replyJoin, joinRequest.getNewMemberIP(), joinRequest.getNewMemberPort());
         } else if(request.getType() == RequestType.JOINOK) {
 
         } else if(request.getType() == RequestType.LEAVE) {
             LeaveRequest leaveRequest = (LeaveRequest) request;
+            NetworkManager.getInstance().getRouteTable().removeNeighbour(new RouteTable.Node(
+                    false,
+                    leaveRequest.getLeavingMemberIP(),
+                    leaveRequest.getLeavingMemberPort()));
 
         } else if(request.getType() == RequestType.LEAVEOK) {
 

@@ -98,7 +98,7 @@ public abstract class BaseRequest {
     public void send(InetAddress IP, int port, DatagramSocket socket) throws IOException {
         String newMsg = setLength(this.message);
         newMsg = newMsg.replace("/","");
-        logger.info("Sending : "+this.type.name()+" :  "+newMsg);
+        logger.info("Sending : "+this.type.name()+" :  "+newMsg+" : Send to  : "+IP.getHostAddress()+" : "+port);
         DatagramPacket packet = new DatagramPacket(newMsg.getBytes(), 0, newMsg.getBytes().length);
         packet.setAddress(IP);
         packet.setPort(port);

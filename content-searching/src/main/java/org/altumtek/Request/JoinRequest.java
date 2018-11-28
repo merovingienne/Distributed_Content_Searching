@@ -21,8 +21,8 @@ public class JoinRequest extends BaseRequest {
 
     public JoinRequest(int value) {
         this.type = RequestType.JOINOK;
-        this.message.concat(serializationUtil(this.type.name()))
-                .concat(String.valueOf(value));
+        this.message = "".concat(serializationUtil(this.type.name()))
+                .concat(serializationUtil(String.valueOf(value)));
     }
 
     public JoinRequest(String msg) throws UnknownHostException {
