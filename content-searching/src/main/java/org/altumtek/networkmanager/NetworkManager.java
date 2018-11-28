@@ -27,6 +27,7 @@ public class NetworkManager {
     private HeartBeatManager heartBeatManager;
     private BootstrapManger bootstrapManger;
     private SearchManager searchManager;
+    private JoinManager joinManager;
 
     private static final Logger logger = Logger.getLogger(NetworkManager.class);
 //    private Map<String, BaseRequest> sendMessages; //send messages
@@ -70,6 +71,9 @@ public class NetworkManager {
         this.searchManager = new SearchManager();
         this.searchManager.start();
 
+        this.joinManager = new JoinManager();
+        this.joinManager.start();
+
         logger.info("Bootstrap connecting....");
         this.bootstrapManger = new BootstrapManger();
         this.bootstrapManger.connectBootstrapServer(BOOTSTRAP_SERVER_IP, BOOTSTRAP_SERVER_PORT);
@@ -92,7 +96,7 @@ public class NetworkManager {
                     } else if (request instanceof BootstrapServerRequest) {
                         bootstrapManger.handleConnectResponse((BootstrapServerRequest) request);
                     } else if (request instanceof JoinRequest){
-                        bootstrapManger.handleConnectResponse((JoinRequest) request);
+                        joinManager.addJoinRequestToQueue((JoinRequest) request);
                     }else if (request instanceof SearchRequest) {
                         searchManager.addSearchRequest((SearchRequest) request);
                     }
@@ -128,8 +132,13 @@ public class NetworkManager {
         return routeTable;
     }
 
+    public JoinManager getJoinManager(){
+        return joinManager;
+    }
+
     private static InetAddress findIP() throws UnknownHostException {
-        return InetAddress.getByName("192.168.8.100");
+//        return InetAddress.getByName("192.168.8.100");
+        return InetAddress.getByName("127.0.0.1");
 //        try {
 //            InetAddress candidateAddress = null;
 //            for (Enumeration ifaces = NetworkInterface.getNetworkInterfaces(); ifaces.hasMoreElements(); ) {

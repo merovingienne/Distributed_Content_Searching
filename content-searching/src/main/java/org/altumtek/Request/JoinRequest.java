@@ -3,6 +3,7 @@ package org.altumtek.Request;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.StringTokenizer;
+import java.util.UUID;
 
 /**
  * Created by chanuka on 11/24/18.
@@ -11,18 +12,19 @@ public class JoinRequest extends BaseRequest {
 
     InetAddress newMemberIP;
     int newMemberPort;
+    private UUID identifier;
+    private UUID senderIdentifier;
 
     public JoinRequest() {
         this.type = RequestType.JOIN;
-        this.message = "".concat(serializationUtil(this.type.name()))
-                .concat(serializationUtil(this.senderIP.getHostAddress()))
-                .concat(serializationUtil(Integer.toString(this.senderPort)));
+        this.identifier = UUID.randomUUID();
+
+        this.message = String.format(" JOIN %s %d %s", senderIP.getHostAddress(), senderPort, identifier.toString());
     }
 
-    public JoinRequest(int value) {
+    public JoinRequest(int errorValue, UUID identifier) {
         this.type = RequestType.JOINOK;
-        this.message = "".concat(serializationUtil(this.type.name()))
-                .concat(serializationUtil(String.valueOf(value)));
+        this.message = String.format(" JOINOK %d %s", errorValue, identifier.toString());
     }
 
     public JoinRequest(String msg) throws UnknownHostException {
@@ -32,6 +34,7 @@ public class JoinRequest extends BaseRequest {
             this.type = RequestType.JOIN;
             this.newMemberIP = InetAddress.getByName(tokenizer.nextToken());
             this.newMemberPort = Integer.parseInt(tokenizer.nextToken());
+            this.identifier = UUID.fromString(tokenizer.nextToken());
         } else if (command.equals(RequestType.JOINOK.name())) {
             int value = Integer.parseInt(tokenizer.nextToken());
             if (value == 0) {
@@ -39,6 +42,7 @@ public class JoinRequest extends BaseRequest {
             } else if (value == 9999) {
                 this.type = RequestType.ERROR;
             }
+            this.senderIdentifier = UUID.fromString(tokenizer.nextToken());
         }
 
     }
@@ -50,4 +54,14 @@ public class JoinRequest extends BaseRequest {
     public int getNewMemberPort() {
         return newMemberPort;
     }
+
+    public UUID getIdentifier() { return this.identifier; }
+
+    /**
+     * Method to identify who sent the original JOIN request
+     * to handle the JOINOK response.
+     *
+     * @return
+     */
+    public UUID getSenderIdentifier() { return this.senderIdentifier; }
 }

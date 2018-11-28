@@ -27,8 +27,8 @@ public class GossipManager {
                 .filter(neighbour -> NetworkManager.getInstance().getRouteTable().containsNode(neighbour.ip))
                 .collect(Collectors.toList());
 
-        for (RouteTable.Node node: newNodeList) {
-            NetworkManager.getInstance().getRouteTable().addNeighbour(node);
+        for (RouteTable.Node node : newNodeList) {
+            NetworkManager.getInstance().getJoinManager().sendJoinRequest(node);
         }
 
     }
@@ -40,11 +40,11 @@ public class GossipManager {
         GossipRequest replyGossipRequest = new GossipRequest(RequestType.GOSSIPOK,
                 nodesList);
         NetworkManager.getInstance().sendMessages(replyGossipRequest,
-                gossipRequest.getSenderIP(),gossipRequest.getSenderPort());
+                gossipRequest.getSenderIP(), gossipRequest.getSenderPort());
     }
 
 
-   private void handleGossipRequests() {
+    private void handleGossipRequests() {
         new Timer().schedule(new TimerTask() {
             @Override
             public void run() {
@@ -53,7 +53,7 @@ public class GossipManager {
                         GossipRequest gossipRequest = gossipRequestQueue.take();
                         if (gossipRequest.getType() == RequestType.GOSSIPOK) {
                             processGossipReply(gossipRequest);
-                        } else if(gossipRequest.getType() == RequestType.GOSSIP) {
+                        } else if (gossipRequest.getType() == RequestType.GOSSIP) {
                             replyGossipRequest(gossipRequest);
                         }
                     } catch (InterruptedException e) {
@@ -62,7 +62,7 @@ public class GossipManager {
                 }
             }
         }, 0, GOSSIP_PERIOD);
-   }
+    }
 
     private void sendGossipRequests() {
         new Timer().schedule(new TimerTask() {
@@ -71,14 +71,14 @@ public class GossipManager {
                 if (NetworkManager.getInstance().getRouteTable().getNeighbourList().size() < NEIGHBOUR_LIMIT) {
                     List<RouteTable.Node> nodesList = new ArrayList<>(NetworkManager.getInstance().getRouteTable()
                             .getNeighbourList());
-                    for (RouteTable.Node node: NetworkManager.getInstance().getRouteTable().getNeighbourList()) {
+                    for (RouteTable.Node node : NetworkManager.getInstance().getRouteTable().getNeighbourList()) {
                         GossipRequest gossipRequest = new GossipRequest(RequestType.GOSSIP,
                                 nodesList);
                         NetworkManager.getInstance().sendMessages(gossipRequest, node.ip, node.port);
                     }
                 }
             }
-        },0,GOSSIP_PERIOD);
+        }, 0, GOSSIP_PERIOD);
     }
 
     void addGossipRequest(GossipRequest gossipRequest) {
