@@ -180,7 +180,7 @@ public class NetworkManager {
      * @param app  app to send results
      */
     public void search(String name, IContentSearch app) {
-        this.searchManager.sendSearchRequest(name, app);
+        this.searchManager.sendSearchRequest(name.replaceAll(" ","-"), app);
     }
 
     public void stop() {

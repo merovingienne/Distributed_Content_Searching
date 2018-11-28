@@ -1,5 +1,6 @@
 package org.altumtek.filetransfer;
 
+import org.altumtek.filemanager.FileManager;
 import org.apache.http.HttpEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
@@ -9,41 +10,37 @@ import org.apache.log4j.Logger;
 
 import java.io.File;
 import java.io.FileOutputStream;
+import java.util.Arrays;
 
 public class FileClient {
 
     private static final Logger logger = Logger.getLogger(FileClient.class);
-    private final String PATH = "/file/download";
-    private String ipAddr;
-    private int port;
-    private String fileName;
+    private static final String PATH = "/download";
 
-    public FileClient(String ipAddr, int port, String fileName) {
-        this.ipAddr = ipAddr;
-        this.port = port;
-        this.fileName = fileName;
+    private FileClient() {
     }
 
-    public boolean download() {
+    public static boolean download(String ipAddr, int port, String fileName) {
 
-        File file = new File(fileName);
+        if (Arrays.asList(FileManager.getFiles()).contains(fileName)) {
+            File file = new File(fileName);
 
-        CloseableHttpClient client = HttpClients.createDefault();
-        try (CloseableHttpResponse response = client.execute(new HttpGet("http://" + ipAddr + ":" + port + PATH))) {
-            HttpEntity entity = response.getEntity();
-            if (entity != null) {
-                try (FileOutputStream outStream = new FileOutputStream(file)) {
-                    entity.writeTo(outStream);
+            CloseableHttpClient client = HttpClients.createDefault();
+            try (CloseableHttpResponse response = client.execute(new HttpGet("http://" + ipAddr + ":" + port + PATH + File.separator + fileName))) {
+                HttpEntity entity = response.getEntity();
+                if (entity != null) {
+                    try (FileOutputStream outStream = new FileOutputStream(file)) {
+                        entity.writeTo(outStream);
+                    }
                 }
+                return true;
+
+            } catch (Exception e) {
+                logger.error("Exception occurred while downloading the file: " + fileName +
+                        " from the Node: " + ipAddr + ":" + port, e);
+
             }
-            return true;
-
-        } catch (Exception e) {
-            logger.error("Exception occurred while downloading the file: " + fileName +
-                    " from the Node: " + ipAddr + ":" + port, e);
-
         }
-
         return false;
     }
 }

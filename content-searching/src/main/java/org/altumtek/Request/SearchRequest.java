@@ -28,7 +28,7 @@ public class SearchRequest extends BaseRequest{
     public SearchRequest(RequestType searchRequestType, List<String> files, int hops, UUID identifier) {
         this.type = RequestType.SEROK;
         String msg = files.stream().collect(Collectors.joining(" "));
-        this.message = String.format(" SEROK %d %s %d %d %s", files.size(),this.senderIP, this.senderPort, hops, identifier.toString())+msg;
+        this.message = String.format(" SEROK %d %s %d %d %s ", files.size(),this.senderIP, this.senderPort, hops, identifier.toString())+msg;
     }
 
     public SearchRequest(String msg) throws UnknownHostException {
@@ -82,7 +82,7 @@ public class SearchRequest extends BaseRequest{
 
     public void prepareForward(){
         this.hops += 1;
-        this.message= String.format("SER %s %d %s %d %s",
+        this.message= String.format(" SER %s %d %s %d %s",
                 this.senderIP.getHostAddress(),
                 this.searcherPort,
                 this.searchName,
