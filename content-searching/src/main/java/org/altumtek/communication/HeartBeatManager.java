@@ -7,9 +7,7 @@ import org.altumtek.networkmanager.RouteTable;
 import org.apache.log4j.Logger;
 
 import java.sql.Timestamp;
-import java.util.Optional;
-import java.util.Timer;
-import java.util.TimerTask;
+import java.util.*;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingDeque;
 
@@ -40,15 +38,22 @@ public class HeartBeatManager {
 
     private void handleHeartbeat() {
         // Remove the nodes which have not sent the last HB within the declared period
+        List<RouteTable.Node> removingNodes = new ArrayList<>();
         new Timer().schedule(new TimerTask() {
             @Override
             public void run() {
-                // FIXME this might be problematic removing elements while looping through it
                 for (RouteTable.Node node : NetworkManager.getInstance().getRouteTable().getNeighbourList()) {
                     if ((node.getTimestamp().getTime() + NODE_EXPIRE) < System.currentTimeMillis()) {
-                        NetworkManager.getInstance().getRouteTable().removeNeighbour(node);
+                        removingNodes.add(node);
                     }
                 }
+
+                for (RouteTable.Node node : removingNodes) {
+                    NetworkManager.getInstance().getRouteTable().removeNeighbour(node);
+                }
+
+                // Clear the removingNodes
+                removingNodes.clear();
             }
         }, 0, NODE_EXPIRE);
 
