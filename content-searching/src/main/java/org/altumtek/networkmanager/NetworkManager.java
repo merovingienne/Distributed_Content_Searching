@@ -128,7 +128,7 @@ public class NetworkManager {
     }
 
     private static InetAddress findIP() throws UnknownHostException {
-        return InetAddress.getByName("192.168.8.100");
+        return InetAddress.getByName("192.168.8.101");
 //        try {
 //            InetAddress candidateAddress = null;
 //            for (Enumeration ifaces = NetworkInterface.getNetworkInterfaces(); ifaces.hasMoreElements(); ) {
@@ -171,7 +171,7 @@ public class NetworkManager {
      * @param app  app to send results
      */
     public void search(String name, IContentSearch app) {
-        this.searchManager.sendSearchRequest(name, app);
+        this.searchManager.sendSearchRequest(name.replaceAll(" ","-"), app);
     }
 
     public void stop() {
