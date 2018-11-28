@@ -91,7 +91,9 @@ public class NetworkManager {
                         heartBeatManager.queueHBMessage((HeartbeatRequest) request);
                     } else if (request instanceof BootstrapServerRequest) {
                         bootstrapManger.handleConnectResponse((BootstrapServerRequest) request);
-                    } else if (request instanceof SearchRequest) {
+                    } else if (request instanceof JoinRequest){
+                        bootstrapManger.handleConnectResponse((JoinRequest) request);
+                    }else if (request instanceof SearchRequest) {
                         searchManager.addSearchRequest((SearchRequest) request);
                     }
 
@@ -127,7 +129,7 @@ public class NetworkManager {
     }
 
     private static InetAddress findIP() throws UnknownHostException {
-        return InetAddress.getByName("192.168.8.104");
+        return InetAddress.getByName("192.168.8.100");
 //        try {
 //            InetAddress candidateAddress = null;
 //            for (Enumeration ifaces = NetworkInterface.getNetworkInterfaces(); ifaces.hasMoreElements(); ) {

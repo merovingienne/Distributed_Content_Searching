@@ -12,9 +12,9 @@ public class MainWindow {
     private JPanel jPanel;
     private JButton searchButton;
     private JTextField textField1;
+    private JButton showFilesButton;
 
     MainWindow(){
-        NetworkManager.getInstance().start();
         showNeighboursButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent actionEvent) {
@@ -34,11 +34,15 @@ public class MainWindow {
     }
 
     public static void main(String[] args) {
-        JFrame frame = new JFrame("Calculator");
-        frame.setContentPane(new MainWindow().jPanel);
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.pack();
-        frame.setVisible(true);
+        NetworkManager.getInstance().start();
+        new Thread(() -> {
+            JFrame frame = new JFrame("Calculator");
+            frame.setContentPane(new MainWindow().jPanel);
+            frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+            frame.pack();
+            frame.setVisible(true);
+        }).start();
+
     }
 
 }
