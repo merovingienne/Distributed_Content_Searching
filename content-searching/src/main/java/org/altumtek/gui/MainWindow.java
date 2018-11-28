@@ -65,7 +65,7 @@ public class MainWindow implements IContentSearch {
     public void onSearchResults(InetAddress ownerAddress, int port, List<String> files) {
         System.out.println("Files received");
         for(String file: files) {
-            System.out.println(file);
+            System.out.println(file+" ---- "+port);
         }
     }
 }

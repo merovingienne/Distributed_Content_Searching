@@ -67,6 +67,10 @@ public class SearchManager {
             //Todo only if files are not found, the request is forwarded  ???
             searchRequest.prepareForward();
             for (RouteTable.Node node: NetworkManager.getInstance().getRouteTable().getNeighbourList()) {
+                if (searchRequest.getSearcherIP().getHostAddress().equals(node.getIp().getHostAddress()) &&
+                        searchRequest.getSearcherPort() == node.getPort()) {
+                    continue;
+                }
                 NetworkManager.getInstance().sendMessages(searchRequest, node.ip, node.port);
             }
         }

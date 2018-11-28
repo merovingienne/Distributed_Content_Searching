@@ -82,7 +82,7 @@ public class SearchRequest extends BaseRequest{
 
     public void prepareForward(){
         this.hops += 1;
-        this.message= String.format("SER %s %d %s %d %s",
+        this.message= String.format(" SER %s %d %s %d %s",
                 this.senderIP.getHostAddress(),
                 this.searcherPort,
                 this.searchName,
