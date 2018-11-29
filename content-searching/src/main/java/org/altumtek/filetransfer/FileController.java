@@ -1,6 +1,7 @@
 package org.altumtek.filetransfer;
 
 import org.altumtek.filemanager.FileManager;
+import org.altumtek.filetransfer.DFile;
 import org.apache.log4j.Logger;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.core.io.Resource;
