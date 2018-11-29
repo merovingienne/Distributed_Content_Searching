@@ -124,7 +124,7 @@ public class MainWindow implements IContentSearch {
     private void updateListView() {
         DefaultListModel model = new DefaultListModel();
         for (int i = 0; i < results.size(); i++) {
-            model.add(i, results.get(i).fileName+" - "+results.get(i).ip.getHostAddress()+":"+results.get(i).port);
+            model.add(i, results.get(i).fileName + " - " + results.get(i).ip.getHostAddress() + ":" + results.get(i).port);
         }
         fileSearchList.setModel(model);
     }
