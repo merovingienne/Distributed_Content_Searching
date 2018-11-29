@@ -14,7 +14,7 @@ import java.util.concurrent.LinkedBlockingDeque;
 public class HeartBeatManager {
 
     private final static int PERIOD = 5000;
-    private final static int NODE_EXPIRE = PERIOD * 4;
+    private final static int NODE_EXPIRE = PERIOD * 2;
     private final static Logger logger = Logger.getLogger(HeartBeatManager.class);
     private final BlockingQueue<HeartbeatRequest> heartbeatQueue = new LinkedBlockingDeque<>();
 

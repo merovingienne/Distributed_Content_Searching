@@ -11,7 +11,7 @@ import java.util.Random;
 
 public class NetworkManager {
 
-    private static final String BOOTSTRAP_SERVER_IP_STR = "127.0.0.1";
+    private static final String BOOTSTRAP_SERVER_IP_STR = "10.8.97.58";
     private static final int BOOTSTRAP_SERVER_PORT = 55555;
 
     private final InetAddress BOOTSTRAP_SERVER_IP;
@@ -38,7 +38,7 @@ public class NetworkManager {
         this.BOOTSTRAP_SERVER_IP = InetAddress.getByName(BOOTSTRAP_SERVER_IP_STR);
         this.IP_ADDRESS = findIP(ip);
         this.PORT = new Random().nextInt(10000) + 1200; // ports above 1200
-        this.SEARCH_PORT = new Random().nextInt(10000) + 1200; // ports above 1200
+        this.SEARCH_PORT = 8080;//new Random().nextInt(10000) + 1200; // ports above 1200
         this.USER_NAME = "Altumtek";
         this.networkManagerSocket = new DatagramSocket(this.PORT);
 //        this.sendMessages = new ConcurrentHashMap<>();
