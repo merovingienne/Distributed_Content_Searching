@@ -13,7 +13,7 @@ import java.util.stream.Collectors;
 
 public class GossipManager {
 
-    private final static int NEIGHBOUR_LIMIT = 4;
+    private final static int NEIGHBOUR_LIMIT = 3;
     private final static int GOSSIP_PERIOD = 5000;
     private final BlockingQueue<GossipRequest> gossipRequestQueue = new LinkedBlockingDeque<>();
 
@@ -22,20 +22,30 @@ public class GossipManager {
         this.sendGossipRequests();
     }
 
-    private void processGossipReply(GossipRequest gossipRequest) {
+    private synchronized void processGossipReply(GossipRequest gossipRequest) {
+        int count = NEIGHBOUR_LIMIT-NetworkManager.getInstance().getRouteTable().getNeighbourList().size();
         List<RouteTable.Node> newNodeList = gossipRequest.getNeighbourList().stream()
                 .filter(neighbour -> !NetworkManager.getInstance()
                         .getRouteTable().containsNode(neighbour.ip, neighbour.port))
                 .collect(Collectors.toList());
 
         for (RouteTable.Node node : newNodeList) {
-            NetworkManager.getInstance().getJoinManager().sendJoinRequest(node);
+            if (count<=0) break;
+//            System.out.println("**********Count***********");
+//            System.out.println("**********Count***********");
+//            System.out.println("**********Count***********");
+//            System.out.println("**********Count***********");
+//            System.out.println(count);
+            boolean flag = NetworkManager.getInstance().getJoinManager().sendJoinRequest(node);
+            if (flag)
+                count -=1;
+
         }
 
     }
 
     private void replyGossipRequest(GossipRequest gossipRequest) {
-        processGossipReply(gossipRequest); //to add nodes in gossip request to route table
+//        processGossipReply(gossipRequest); //to add nodes in gossip request to route table //Todo is this needed?
         List<RouteTable.Node> nodesList = new ArrayList<>(NetworkManager.getInstance().getRouteTable()
                 .getNeighbourList());
         GossipRequest replyGossipRequest = new GossipRequest(RequestType.GOSSIPOK,
