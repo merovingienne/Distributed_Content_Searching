@@ -6,26 +6,26 @@ import java.util.Random;
 
 public class FileManager {
     private static String files[] = {
-            "Adventures-of-Tintin",
-            "Jack-and-Jill",
-            "Glee",
-            "The-Vampire-Diarie",
-            "King-Arthur",
-            "Windows-XP",
-            "Harry-Potter",
-            "Kung-Fu-Panda",
-            "Lady-Gaga",
-            "Twilight",
-            "Windows-8",
-            "Mission-Impossible",
-            "Turn-Up-The-Music",
-            "Super-Mario",
-            "American-Pickers",
-            "Microsoft-Office-2010",
-            "Happy-Feet",
-            "Modern-Family",
-            "American-Idol",
-            "Hacking-for-Dummies"
+            "adventures-of-tintin",
+            "jack-and-jill",
+            "glee",
+            "the-vampire-diarie",
+            "king-arthur",
+            "windows-xP",
+            "harry-potter",
+            "kung-fu-panda",
+            "lady-gaga",
+            "twilight",
+            "windows-8",
+            "mission-impossible",
+            "turn-up-the-music",
+            "super-mario",
+            "american-pickers",
+            "microsoft-office-2010",
+            "happy-feet",
+            "modern-family",
+            "american-idol",
+            "hacking-for-dummies"
     };
     private static FileManager fileManager;
 
