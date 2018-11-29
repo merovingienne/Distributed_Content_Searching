@@ -23,36 +23,6 @@ public class DFile {
         } catch (IOException e) {
             logger.error("Error occurred while creating the file: " + fileName, e);
         }
-
-        File file = new File(fileName);
-        if (file.exists()) {
-            try {
-                System.out.printf("%s File Size = %.2f MB\n", name, (file.length() / (1024 * 1024)) * 1.0); //FIXME not correctly getting the size (decimal part)
-                System.out.printf("SHA of the %s File = %s\n", name, sha1(file));
-
-            } catch (NoSuchAlgorithmException e) {
-                logger.error("Algorithm SHA-1 does not exists!", e);
-
-            } catch (IOException e) {
-                logger.error("Error occurred while generating the SHA value of the file", e);
-            }
-        }
-
-        return file;
-    }
-
-    private String sha1(File file) throws NoSuchAlgorithmException, IOException {
-        MessageDigest sha1 = MessageDigest.getInstance("SHA-1");
-        InputStream fis = new FileInputStream(file);
-        int n = 0;
-        byte[] buffer = new byte[8192];
-        while (n != -1) {
-            n = fis.read(buffer);
-            if (n > 0) {
-                sha1.update(buffer, 0, n);
-            }
-        }
-
-        return new HexBinaryAdapter().marshal(sha1.digest());
+        return new File(fileName);
     }
 }
