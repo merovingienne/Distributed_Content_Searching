@@ -1,11 +1,9 @@
 package org.altumtek.filetransfer;
 
 import org.altumtek.filemanager.FileManager;
-import org.altumtek.filetransfer.DFile;
 import org.apache.log4j.Logger;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.core.io.Resource;
-import org.springframework.hateoas.ExposesResourceFor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -18,7 +16,6 @@ import java.io.FileNotFoundException;
 
 @CrossOrigin(origins = "*")
 @RestController
-@ExposesResourceFor(DFile.class)
 @RequestMapping(value = "/download", produces = "application/json")
 public class FileController {
 
