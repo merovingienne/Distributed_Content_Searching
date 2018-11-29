@@ -2,10 +2,10 @@ package org.altumtek.filetransfer;
 
 import org.apache.log4j.Logger;
 
-import javax.xml.bind.annotation.adapters.HexBinaryAdapter;
-import java.io.*;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.concurrent.ThreadLocalRandom;
 
 public class DFile {
