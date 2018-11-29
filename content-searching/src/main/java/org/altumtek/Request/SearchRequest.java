@@ -1,5 +1,7 @@
 package org.altumtek.Request;
 
+import org.altumtek.networkmanager.NetworkManager;
+
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
@@ -28,7 +30,7 @@ public class SearchRequest extends BaseRequest{
     public SearchRequest(RequestType searchRequestType, List<String> files, int hops, UUID identifier) {
         this.type = RequestType.SEROK;
         String msg = files.stream().collect(Collectors.joining(" "));
-        this.message = String.format(" SEROK %d %s %d %d %s ", files.size(),this.senderIP, this.senderPort, hops, identifier.toString())+msg;
+        this.message = String.format(" SEROK %d %s %d %d %s ", files.size(),this.senderIP, NetworkManager.getInstance().getSearchPort(), hops, identifier.toString())+msg;
     }
 
     public SearchRequest(String msg) throws UnknownHostException {
