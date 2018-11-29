@@ -80,8 +80,7 @@ public class GUIController implements Initializable, IContentSearch {
         if (receivedFileList != null){
             receivedFileList.clear();
         }
-        ObservableList<String> items = FXCollections.observableArrayList (receivedFileList.keySet());
-        searchResultsList.setItems(items);
+        updateSearchResults();
     }
 
     @FXML
@@ -129,7 +128,6 @@ public class GUIController implements Initializable, IContentSearch {
     @FXML
     public void handleMouseClick(MouseEvent arg0) throws UnknownHostException {
         String item = searchResultsList.getSelectionModel().getSelectedItem();
-        System.out.println("\n\nclicked on " + item);
         selectedFile = receivedFileList.get(item);
         result = new SearchResult(item, InetAddress.getByName(receivedFileList.get(item).split(" ")[0].substring(1)),
                 Integer.parseInt(receivedFileList.get(item).split(" ")[1]));
@@ -162,7 +160,11 @@ public class GUIController implements Initializable, IContentSearch {
         Platform.runLater(new Runnable() {
             @Override
             public void run() {
-                ObservableList<String> items = FXCollections.observableArrayList (receivedFileList.keySet());
+                ArrayList<String> itemList = new ArrayList<>();
+                for (String file : receivedFileList.keySet()){
+                    itemList.add(receivedFileList.get(file).substring(1) + " | " + file);
+                }
+                ObservableList<String> items = FXCollections.observableArrayList (itemList);
                 searchResultsList.setItems(items);
             }
         });
