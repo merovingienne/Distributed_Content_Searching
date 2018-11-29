@@ -43,7 +43,7 @@ public class MainWindow implements IContentSearch {
         });
     }
 
-    public void initialize(){
+    public void initialize() {
         NetworkManager.getInstance().start();
         ipLabel.setText("IP: " + NetworkManager.getInstance().getIpPort());
         exitButton.addActionListener(new ActionListener() {
@@ -124,7 +124,7 @@ public class MainWindow implements IContentSearch {
     private void updateListView() {
         DefaultListModel model = new DefaultListModel();
         for (int i = 0; i < results.size(); i++) {
-            model.add(i, results.get(i).fileName);
+            model.add(i, results.get(i).fileName+" - "+results.get(i).ip.getHostAddress()+":"+results.get(i).port);
         }
         fileSearchList.setModel(model);
     }
@@ -145,7 +145,7 @@ public class MainWindow implements IContentSearch {
      */
     private void $$$setupUI$$$() {
         jPanel = new JPanel();
-        jPanel.setLayout(new GridLayoutManager(12, 2, new Insets(0, 0, 0, 0), -1, -1));
+        jPanel.setLayout(new GridLayoutManager(13, 2, new Insets(0, 0, 0, 0), -1, -1));
         searchButton = new JButton();
         searchButton.setText("Search");
         jPanel.add(searchButton, new GridConstraints(2, 0, 1, 2, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
@@ -159,7 +159,7 @@ public class MainWindow implements IContentSearch {
         jPanel.add(ipLabel, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         exitButton = new JButton();
         exitButton.setText("Exit");
-        jPanel.add(exitButton, new GridConstraints(11, 0, 1, 2, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        jPanel.add(exitButton, new GridConstraints(12, 0, 1, 2, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         fileSearchList = new JList();
         jPanel.add(fileSearchList, new GridConstraints(3, 0, 1, 2, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_WANT_GROW, null, new Dimension(150, 50), null, 0, false));
         downloadButton = new JButton();
@@ -174,6 +174,11 @@ public class MainWindow implements IContentSearch {
         filesText = new JTextArea();
         filesText.setEditable(false);
         jPanel.add(filesText, new GridConstraints(8, 0, 1, 2, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_WANT_GROW, null, new Dimension(150, 50), null, 0, false));
+        ipText = new JTextField();
+        jPanel.add(ipText, new GridConstraints(10, 0, 1, 2, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(150, -1), null, 0, false));
+        setIPButton = new JButton();
+        setIPButton.setText("Set IP");
+        jPanel.add(setIPButton, new GridConstraints(11, 0, 1, 2, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
     }
 
     /**
