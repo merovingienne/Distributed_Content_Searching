@@ -21,19 +21,18 @@ public class FileClient {
     }
 
     public static boolean download(String ipAddr, int port, String fileName) {
-        logger.info("***********************************************************function ready to download");
         if (Arrays.asList(FileManager.getFiles()).contains(fileName)) {
             File file = new File(fileName);
-            logger.info("\"***********************************************************fILE FOUND!!!!");
-
             CloseableHttpClient client = HttpClients.createDefault();
-            try (CloseableHttpResponse response = client.execute(new HttpGet("http:/" + ipAddr + ":" + port + PATH + File.separator + fileName))) {
+            try (CloseableHttpResponse response = client.execute(new HttpGet("http://" + ipAddr + ":" + port + PATH + File.separator + fileName))) {
+                logger.info("Request received from the node " + ipAddr + " : " + port + "Ready to download the file: " + fileName);
                 HttpEntity entity = response.getEntity();
                 if (entity != null) {
                     try (FileOutputStream outStream = new FileOutputStream(file)) {
                         entity.writeTo(outStream);
                     }
                 }
+                logger.info("Successfully sent the file: " + fileName + " to: " + ipAddr + " : " + port);
                 return true;
 
             } catch (Exception e) {
