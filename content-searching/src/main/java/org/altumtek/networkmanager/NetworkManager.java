@@ -11,7 +11,7 @@ import java.util.Random;
 
 public class NetworkManager {
 
-    private static final String BOOTSTRAP_SERVER_IP_STR = "10.8.97.58";
+    private static final String BOOTSTRAP_SERVER_IP_STR = "127.0.0.1";
     private static final int BOOTSTRAP_SERVER_PORT = 55555;
 
     private final InetAddress BOOTSTRAP_SERVER_IP;

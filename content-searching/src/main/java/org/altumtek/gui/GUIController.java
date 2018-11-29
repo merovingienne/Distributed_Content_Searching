@@ -1,19 +1,25 @@
 package org.altumtek.gui;
 
+import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
+import javafx.scene.input.MouseEvent;
+import org.altumtek.Request.SearchRequest;
 import org.altumtek.filemanager.FileManager;
+import org.altumtek.filetransfer.FileClient;
 import org.altumtek.networkmanager.NetworkManager;
 import org.altumtek.networkmanager.RouteTable;
 import org.altumtek.networkmanager.utils.IContentSearch;
 
 import java.net.InetAddress;
 import java.net.URL;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.ResourceBundle;
 
@@ -30,6 +36,9 @@ public class GUIController implements Initializable, IContentSearch {
 
     @FXML
     private Button searchButton;
+
+    @FXML
+    private Button downloadButton;
 
     @FXML
     private Button showNeighboursButton;
@@ -55,7 +64,10 @@ public class GUIController implements Initializable, IContentSearch {
     @FXML
     private Label ipPortOutput;
 
-    private ArrayList<String> receivedFileList;
+    private boolean ready;
+    private String selectedFile;
+    private SearchResult result;
+    private HashMap<String, String> receivedFileList = new HashMap<>();
 
     @FXML
     void search(ActionEvent event) {
@@ -68,9 +80,8 @@ public class GUIController implements Initializable, IContentSearch {
         if (receivedFileList != null){
             receivedFileList.clear();
         }
-        ListView<String> list = new ListView<String>();
-        ObservableList<String> items = FXCollections.observableArrayList (receivedFileList);
-        list.setItems(items);
+        ObservableList<String> items = FXCollections.observableArrayList (receivedFileList.keySet());
+        searchResultsList.setItems(items);
     }
 
     @FXML
@@ -78,7 +89,8 @@ public class GUIController implements Initializable, IContentSearch {
         ObservableList<String> items = FXCollections.observableArrayList();
         int count = 1;
         for (RouteTable.Node node: NetworkManager.getInstance().getRouteTable().getNeighbourList()){
-            items.add("" + count + node.getIp().getHostAddress() + " " + node.getPort());
+            items.add(count + " " + node.getIp().getHostAddress() + " " + node.getPort());
+            count++;
         }
 
         neighboursList.setItems(items);
@@ -95,6 +107,11 @@ public class GUIController implements Initializable, IContentSearch {
     }
 
     @FXML
+    void downloadFile(ActionEvent event){
+        FileClient.download(result.ip.getHostAddress(), result.port, result.fileName);
+    }
+
+    @FXML
     void setIP(ActionEvent event){
         String IP = ipInput.getText();
 
@@ -103,21 +120,66 @@ public class GUIController implements Initializable, IContentSearch {
         ipPortOutput.setText(NetworkManager.getInstance().getIpPort());
 
         setIP.setDisable(true);
+        showFilesButton.setDisable(false);
+        showNeighboursButton.setDisable(false);
+        searchButton.setDisable(false);
 
+    }
+
+    @FXML
+    public void handleMouseClick(MouseEvent arg0) throws UnknownHostException {
+        String item = searchResultsList.getSelectionModel().getSelectedItem();
+        System.out.println("\n\nclicked on " + item);
+        selectedFile = receivedFileList.get(item);
+        result = new SearchResult(item, InetAddress.getByName(receivedFileList.get(item).split(" ")[0].substring(1)),
+                Integer.parseInt(receivedFileList.get(item).split(" ")[1]));
+        downloadButton.setDisable(false);
     }
 
 
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-
+        showFilesButton.setDisable(true);
+        showNeighboursButton.setDisable(true);
+        searchButton.setDisable(true);
+        downloadButton.setDisable(true);
     }
 
     @Override
     public void onSearchResults(InetAddress ownerAddress, int port, List<String> files) {
+
         System.out.println("Files received");
         for (String file : files) {
             System.out.println(file + " ---- " + port);
+            receivedFileList.put(file, ownerAddress + " " + port);
+        }
+
+        updateSearchResults();
+    }
+
+    private void updateSearchResults(){
+        Platform.runLater(new Runnable() {
+            @Override
+            public void run() {
+                ObservableList<String> items = FXCollections.observableArrayList (receivedFileList.keySet());
+                searchResultsList.setItems(items);
+            }
+        });
+
+    }
+
+
+    private static class SearchResult {
+        String fileName;
+        InetAddress ip;
+        int port;
+
+        public SearchResult(String fileName, InetAddress ip, int port) {
+            this.fileName = fileName;
+            this.ip = ip;
+            this.port = port;
         }
     }
+
 }

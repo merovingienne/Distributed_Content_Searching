@@ -41,7 +41,9 @@ public class GUI extends Application {
         primaryStage.show();
 
         primaryStage.setOnCloseRequest(event -> {
-            NetworkManager.getInstance().stop();
+            if (NetworkManager.getInstance() != null){
+                NetworkManager.getInstance().stop();
+            }
         });
     }
 

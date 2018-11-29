@@ -12,18 +12,18 @@
       <Label layoutX="42.0" layoutY="14.0" text="Search" />
       <TextArea fx:id="searchInput" layoutX="36.0" layoutY="30.0" prefHeight="42.0" prefWidth="206.0" promptText="Search file name" />
       <TextArea fx:id="runningLog" editable="false" layoutX="338.0" layoutY="7.0" prefHeight="384.0" prefWidth="571.0" wrapText="true" />
-      <ListView fx:id="myFilesList" layoutX="35.0" layoutY="279.0" prefHeight="200.0" prefWidth="275.0" />
+      <ListView fx:id="myFilesList" layoutX="35.0" layoutY="279.0" prefHeight="200.0" prefWidth="197.0" />
       <Button fx:id="searchButton" layoutX="254.0" layoutY="38.0" mnemonicParsing="false" onAction="#search" text="Search" />
-      <Button fx:id="showFiles" layoutX="35.0" layoutY="247.0" mnemonicParsing="false" onAction="#showFiles" text="Show Files" />
-      <ListView fx:id="searchResultsList" layoutX="35.0" layoutY="103.0" prefHeight="135.0" prefWidth="275.0" />
+      <Button fx:id="showFilesButton" layoutX="35.0" layoutY="247.0" mnemonicParsing="false" onAction="#showFiles" text="Show Files" />
+      <ListView fx:id="searchResultsList" layoutX="35.0" layoutY="103.0" onMouseClicked="#handleMouseClick" prefHeight="135.0" prefWidth="275.0" />
       <Label layoutX="35.0" layoutY="79.0" text="Search Results" />
       <Button fx:id="showNeighboursButton" layoutX="35.0" layoutY="498.0" mnemonicParsing="false" onAction="#showNeighbours" text="Show Neighbours" />
       <ListView fx:id="neighboursList" layoutX="39.0" layoutY="531.0" prefHeight="200.0" prefWidth="275.0" />
       <TextField fx:id="ipInput" layoutX="338.0" layoutY="435.0" text="127.0.0.1" />
       <Label layoutX="338.0" layoutY="410.0" text="Set IP Manually" />
       <Button fx:id="setIP" layoutX="517.0" layoutY="435.0" mnemonicParsing="false" onAction="#setIP" text="Set IP" />
-      <Label layoutX="338.0" layoutY="490.0" text="Current IP" />
-      <Label layoutX="338.0" layoutY="516.0" text="Port" />
+      <Label layoutX="338.0" layoutY="490.0" text="Current IP &amp; port" />
       <Label fx:id="ipPortOutput" layoutX="459.0" layoutY="490.0" />
+      <Button fx:id="downloadButton" onAction="#downloadFile" layoutX="242.0" layoutY="288.0" mnemonicParsing="false" text="Download" />
    </children>
 </AnchorPane>
