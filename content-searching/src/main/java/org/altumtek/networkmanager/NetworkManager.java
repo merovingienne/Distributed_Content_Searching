@@ -98,6 +98,8 @@ public class NetworkManager {
                         joinManager.addJoinRequestToQueue((JoinRequest) request);
                     }else if (request instanceof SearchRequest) {
                         searchManager.addSearchRequest((SearchRequest) request);
+                    } else if (request instanceof LeaveRequest) {
+                        bootstrapManger.handleConnectResponse(request);
                     }
 
                 } catch (IOException e) {
