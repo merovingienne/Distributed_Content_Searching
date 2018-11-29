@@ -17,7 +17,7 @@ public class NetworkManager {
     private final InetAddress BOOTSTRAP_SERVER_IP;
     private final InetAddress IP_ADDRESS;
     private final int PORT;
-    private final int SEARCH_PORT;
+    private static int SEARCH_PORT;
     private final String USER_NAME;
     private final DatagramSocket networkManagerSocket;
 
@@ -38,12 +38,12 @@ public class NetworkManager {
         this.BOOTSTRAP_SERVER_IP = InetAddress.getByName(BOOTSTRAP_SERVER_IP_STR);
         this.IP_ADDRESS = findIP(ip);
         this.PORT = new Random().nextInt(10000) + 1200; // ports above 1200
-        this.SEARCH_PORT = 8080;//new Random().nextInt(10000) + 1200; // ports above 1200
         this.USER_NAME = "Altumtek";
         this.networkManagerSocket = new DatagramSocket(this.PORT);
 //        this.sendMessages = new ConcurrentHashMap<>();
 //        this.receiveMessages = new ConcurrentHashMap<>();
     }
+
     public static NetworkManager getInstance(String ip) {
         try {
             networkManager = new NetworkManager(ip);
@@ -55,6 +55,7 @@ public class NetworkManager {
         }
         return null;
     }
+
     public static NetworkManager getInstance() {
         return networkManager;
 
@@ -108,9 +109,9 @@ public class NetworkManager {
                         heartBeatManager.queueHBMessage((HeartbeatRequest) request);
                     } else if (request instanceof BootstrapServerRequest) {
                         bootstrapManger.handleConnectResponse((BootstrapServerRequest) request);
-                    } else if (request instanceof JoinRequest){
+                    } else if (request instanceof JoinRequest) {
                         joinManager.addJoinRequestToQueue((JoinRequest) request);
-                    }else if (request instanceof SearchRequest) {
+                    } else if (request instanceof SearchRequest) {
                         searchManager.addSearchRequest((SearchRequest) request);
                     } else if (request instanceof LeaveRequest) {
                         bootstrapManger.handleConnectResponse(request);
@@ -139,7 +140,11 @@ public class NetworkManager {
         return PORT;
     }
 
-    public int getSearchPort() {
+    public static void setSearchPort(int searchPort) {
+        SEARCH_PORT = searchPort;
+    }
+
+    public static int getSearchPort() {
         return SEARCH_PORT;
     }
 
@@ -151,7 +156,7 @@ public class NetworkManager {
         return routeTable;
     }
 
-    public JoinManager getJoinManager(){
+    public JoinManager getJoinManager() {
         return joinManager;
     }
 
@@ -167,7 +172,7 @@ public class NetworkManager {
      * @param app  app to send results
      */
     public void search(String name, IContentSearch app) {
-        this.searchManager.sendSearchRequest(name.replaceAll(" ","-"), app);
+        this.searchManager.sendSearchRequest(name.replaceAll(" ", "-"), app);
     }
 
     public void stop() {
