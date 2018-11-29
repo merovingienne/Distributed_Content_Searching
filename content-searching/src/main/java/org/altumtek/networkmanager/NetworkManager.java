@@ -33,26 +33,38 @@ public class NetworkManager {
 //    private Map<String, BaseRequest> receiveMessages; //send messages
 
 
-    private NetworkManager() throws UnknownHostException, SocketException {
+    private NetworkManager(String ip) throws UnknownHostException, SocketException {
         this.BOOTSTRAP_SERVER_IP = InetAddress.getByName(BOOTSTRAP_SERVER_IP_STR);
-        this.IP_ADDRESS = findIP();
+        this.IP_ADDRESS = findIP(ip);
         this.PORT = new Random().nextInt(10000) + 1200; // ports above 1200
         this.USER_NAME = "Altumtek";
         this.networkManagerSocket = new DatagramSocket(this.PORT);
 //        this.sendMessages = new ConcurrentHashMap<>();
 //        this.receiveMessages = new ConcurrentHashMap<>();
     }
-
-    public static NetworkManager getInstance() {
-        if (networkManager != null) return networkManager;
-
+    public static NetworkManager getInstance(String ip) {
         try {
-            networkManager = new NetworkManager();
-//            networkManager.init();
-        } catch (UnknownHostException | SocketException e) {
+            networkManager = new NetworkManager(ip);
+            return networkManager;
+        } catch (UnknownHostException e) {
+            e.printStackTrace();
+        } catch (SocketException e) {
             e.printStackTrace();
         }
+        return null;
+    }
+    public static NetworkManager getInstance() {
         return networkManager;
+
+//        if (networkManager != null) return networkManager;
+//
+//        try {
+//            networkManager = new NetworkManager();
+////            networkManager.init();
+//        } catch (UnknownHostException | SocketException e) {
+//            e.printStackTrace();
+//        }
+//        return networkManager;
     }
 
     private void init() {
@@ -137,9 +149,9 @@ public class NetworkManager {
         return joinManager;
     }
 
-    private static InetAddress findIP() throws UnknownHostException {
+    private static InetAddress findIP(String ip) throws UnknownHostException {
 //        return InetAddress.getByName("192.168.8.100");
-        return InetAddress.getByName("127.0.0.1");
+        return InetAddress.getByName(ip);
 //        try {
 //            InetAddress candidateAddress = null;
 //            for (Enumeration ifaces = NetworkInterface.getNetworkInterfaces(); ifaces.hasMoreElements(); ) {

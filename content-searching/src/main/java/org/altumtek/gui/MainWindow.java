@@ -28,11 +28,23 @@ public class MainWindow implements IContentSearch {
     private JButton downloadButton;
     private JTextArea filesText;
     private JTextArea neighboursText;
+    private JTextField ipText;
+    private JButton setIPButton;
 
     private ArrayList<SearchResult> results;
 
     MainWindow() {
+        setIPButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent actionEvent) {
+                NetworkManager.getInstance(ipText.getText());
+                initialize();
+            }
+        });
+    }
 
+    public void initialize(){
+        NetworkManager.getInstance().start();
         ipLabel.setText("IP: " + NetworkManager.getInstance().getIpPort());
         exitButton.addActionListener(new ActionListener() {
             @Override
@@ -85,12 +97,9 @@ public class MainWindow implements IContentSearch {
                 neighboursText.setText(text);
             }
         });
-
-
     }
 
     public static void main(String[] args) {
-        NetworkManager.getInstance().start();
         new Thread(() -> {
             JFrame frame = new JFrame("Calculator");
             frame.setMinimumSize(new Dimension(400, 600));
