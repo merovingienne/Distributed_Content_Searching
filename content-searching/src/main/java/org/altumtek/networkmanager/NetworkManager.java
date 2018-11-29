@@ -17,6 +17,7 @@ public class NetworkManager {
     private final InetAddress BOOTSTRAP_SERVER_IP;
     private final InetAddress IP_ADDRESS;
     private final int PORT;
+    private final int SEARCH_PORT;
     private final String USER_NAME;
     private final DatagramSocket networkManagerSocket;
 
@@ -33,26 +34,39 @@ public class NetworkManager {
 //    private Map<String, BaseRequest> receiveMessages; //send messages
 
 
-    private NetworkManager() throws UnknownHostException, SocketException {
+    private NetworkManager(String ip) throws UnknownHostException, SocketException {
         this.BOOTSTRAP_SERVER_IP = InetAddress.getByName(BOOTSTRAP_SERVER_IP_STR);
-        this.IP_ADDRESS = findIP();
+        this.IP_ADDRESS = findIP(ip);
         this.PORT = new Random().nextInt(10000) + 1200; // ports above 1200
+        this.SEARCH_PORT = new Random().nextInt(10000) + 1200; // ports above 1200
         this.USER_NAME = "Altumtek";
         this.networkManagerSocket = new DatagramSocket(this.PORT);
 //        this.sendMessages = new ConcurrentHashMap<>();
 //        this.receiveMessages = new ConcurrentHashMap<>();
     }
-
-    public static NetworkManager getInstance() {
-        if (networkManager != null) return networkManager;
-
+    public static NetworkManager getInstance(String ip) {
         try {
-            networkManager = new NetworkManager();
-//            networkManager.init();
-        } catch (UnknownHostException | SocketException e) {
+            networkManager = new NetworkManager(ip);
+            return networkManager;
+        } catch (UnknownHostException e) {
+            e.printStackTrace();
+        } catch (SocketException e) {
             e.printStackTrace();
         }
+        return null;
+    }
+    public static NetworkManager getInstance() {
         return networkManager;
+
+//        if (networkManager != null) return networkManager;
+//
+//        try {
+//            networkManager = new NetworkManager();
+////            networkManager.init();
+//        } catch (UnknownHostException | SocketException e) {
+//            e.printStackTrace();
+//        }
+//        return networkManager;
     }
 
     private void init() {
@@ -98,6 +112,8 @@ public class NetworkManager {
                         joinManager.addJoinRequestToQueue((JoinRequest) request);
                     }else if (request instanceof SearchRequest) {
                         searchManager.addSearchRequest((SearchRequest) request);
+                    } else if (request instanceof LeaveRequest) {
+                        bootstrapManger.handleConnectResponse(request);
                     }
 
                 } catch (IOException e) {
@@ -123,6 +139,10 @@ public class NetworkManager {
         return PORT;
     }
 
+    public int getSearchPort() {
+        return SEARCH_PORT;
+    }
+
     public String getUserName() {
         return USER_NAME;
     }
@@ -135,41 +155,8 @@ public class NetworkManager {
         return joinManager;
     }
 
-    private static InetAddress findIP() throws UnknownHostException {
-//        return InetAddress.getByName("192.168.8.100");
-        return InetAddress.getByName("127.0.0.1");
-//        try {
-//            InetAddress candidateAddress = null;
-//            for (Enumeration ifaces = NetworkInterface.getNetworkInterfaces(); ifaces.hasMoreElements(); ) {
-//                NetworkInterface iface = (NetworkInterface) ifaces.nextElement();
-//                for (Enumeration inetAddrs = iface.getInetAddresses(); inetAddrs.hasMoreElements(); ) {
-//                    InetAddress inetAddr = (InetAddress) inetAddrs.nextElement();
-//                    if (!inetAddr.isLoopbackAddress()) {
-//
-//                        if (inetAddr.isSiteLocalAddress()) {
-//                            return inetAddr;
-//                        } else if (candidateAddress == null) {
-//                            candidateAddress = inetAddr;
-//                        }
-//                    }
-//                }
-//            }
-//            if (candidateAddress != null) {
-//                return candidateAddress;
-//            }
-//
-//            InetAddress jdkSuppliedAddress = InetAddress.getLocalHost();
-//            if (jdkSuppliedAddress == null) {
-//                throw new UnknownHostException("The JDK InetAddress.getLocalHost() method unexpectedly returned null.");
-//            }
-//
-//            return jdkSuppliedAddress;
-//
-//        } catch (Exception e) {
-//            UnknownHostException unknownHostException = new UnknownHostException("Failed to determine LAN address: " + e);
-//            unknownHostException.initCause(e);
-//            throw unknownHostException;
-//        }
+    private static InetAddress findIP(String ip) throws UnknownHostException {
+        return InetAddress.getByName(ip);
     }
 
 
@@ -186,6 +173,13 @@ public class NetworkManager {
     public void stop() {
         this.bootstrapManger.disconnectBootstrapServer(BOOTSTRAP_SERVER_IP, BOOTSTRAP_SERVER_PORT);
         //TODO off different ports
+    }
+
+    public void resetInstance() {
+        System.exit(0);
+        networkManagerSocket.disconnect();
+        networkManagerSocket.close();
+        networkManager = null;
     }
 
     public void start() {

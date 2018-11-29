@@ -45,10 +45,10 @@ public class BootstrapManger {
         for (RouteTable.Node node: NetworkManager.getInstance().getRouteTable().getNeighbourList()){
             NetworkManager.getInstance().sendMessages(leaveRequest, node.ip, node.port);
         }
+        NetworkManager.getInstance().resetInstance();
     }
 
     public void handleConnectResponse(BaseRequest request) {
-
         if (request.getType() ==
                 RequestType.REGOK) {
             BootstrapServerRequest bootstrapServerRequest = (BootstrapServerRequest)request;

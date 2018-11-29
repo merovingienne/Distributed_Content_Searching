@@ -1,6 +1,9 @@
 package org.altumtek.gui;
 
+import com.intellij.uiDesigner.core.GridConstraints;
+import com.intellij.uiDesigner.core.GridLayoutManager;
 import org.altumtek.filemanager.FileManager;
+import org.altumtek.filetransfer.FileClient;
 import org.altumtek.networkmanager.NetworkManager;
 import org.altumtek.networkmanager.RouteTable;
 import org.altumtek.networkmanager.utils.IContentSearch;
@@ -10,6 +13,7 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.net.InetAddress;
+import java.util.ArrayList;
 import java.util.List;
 
 public class MainWindow implements IContentSearch {
@@ -20,9 +24,27 @@ public class MainWindow implements IContentSearch {
     private JButton showFilesButton;
     private JLabel ipLabel;
     private JButton exitButton;
+    private JList fileSearchList;
+    private JButton downloadButton;
+    private JTextArea filesText;
+    private JTextArea neighboursText;
+    private JTextField ipText;
+    private JButton setIPButton;
+
+    private ArrayList<SearchResult> results;
 
     MainWindow() {
+        setIPButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent actionEvent) {
+                NetworkManager.getInstance(ipText.getText());
+                initialize();
+            }
+        });
+    }
 
+    public void initialize(){
+        NetworkManager.getInstance().start();
         ipLabel.setText("IP: " + NetworkManager.getInstance().getIpPort());
         exitButton.addActionListener(new ActionListener() {
             @Override
@@ -30,15 +52,7 @@ public class MainWindow implements IContentSearch {
                 NetworkManager.getInstance().stop();
             }
         });
-        showNeighboursButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent actionEvent) {
-                System.out.println("Neighbour list");
-                for (RouteTable.Node node : NetworkManager.getInstance().getRouteTable().getNeighbourList()) {
-                    System.out.println(node.ip + ":" + node.port);
-                }
-            }
-        });
+
         searchButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent actionEvent) {
@@ -46,24 +60,49 @@ public class MainWindow implements IContentSearch {
                 String search = textField1.getText();
                 System.out.println(search);
                 NetworkManager.getInstance().search(search, MainWindow.this);
+                results = new ArrayList<>();
+                MainWindow.this.updateListView();
+            }
+        });
+        downloadButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent actionEvent) {
+                int selectedIndex = fileSearchList.getSelectedIndex();
+                MainWindow.SearchResult searchResult = results.get(selectedIndex);
+                FileClient.download(searchResult.ip.getHostAddress(), searchResult.port, searchResult.fileName);
+
             }
         });
         showFilesButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent actionEvent) {
                 System.out.println("My files");
+                String text = "";
                 for (String file : FileManager.getIntance().getMyFiles()) {
+                    text = text + file + "\n";
                     System.out.println(file);
                 }
+                filesText.setText(text);
             }
         });
-
+        showNeighboursButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent actionEvent) {
+                System.out.println("Neighbour list");
+                String text = "";
+                for (RouteTable.Node node : NetworkManager.getInstance().getRouteTable().getNeighbourList()) {
+                    text = text + node.ip.getHostAddress() + " " + node.port + "\n";
+                    System.out.println(node.ip + ":" + node.port);
+                }
+                neighboursText.setText(text);
+            }
+        });
     }
 
     public static void main(String[] args) {
-        NetworkManager.getInstance().start();
         new Thread(() -> {
             JFrame frame = new JFrame("Calculator");
+            frame.setMinimumSize(new Dimension(400, 600));
             frame.setContentPane(new MainWindow().jPanel);
             frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
             frame.pack();
@@ -77,7 +116,17 @@ public class MainWindow implements IContentSearch {
         System.out.println("Files received");
         for (String file : files) {
             System.out.println(file + " ---- " + port);
+            results.add(new SearchResult(file, ownerAddress, port));
         }
+        this.updateListView();
+    }
+
+    private void updateListView() {
+        DefaultListModel model = new DefaultListModel();
+        for (int i = 0; i < results.size(); i++) {
+            model.add(i, results.get(i).fileName);
+        }
+        fileSearchList.setModel(model);
     }
 
     {
@@ -96,24 +145,35 @@ public class MainWindow implements IContentSearch {
      */
     private void $$$setupUI$$$() {
         jPanel = new JPanel();
-        jPanel.setLayout(new com.intellij.uiDesigner.core.GridLayoutManager(7, 2, new Insets(0, 0, 0, 0), -1, -1));
-        showNeighboursButton = new JButton();
-        showNeighboursButton.setText("Show neighbours");
-        jPanel.add(showNeighboursButton, new com.intellij.uiDesigner.core.GridConstraints(4, 0, 2, 2, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_CENTER, com.intellij.uiDesigner.core.GridConstraints.FILL_HORIZONTAL, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_SHRINK | com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_GROW, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        jPanel.setLayout(new GridLayoutManager(12, 2, new Insets(0, 0, 0, 0), -1, -1));
         searchButton = new JButton();
         searchButton.setText("Search");
-        jPanel.add(searchButton, new com.intellij.uiDesigner.core.GridConstraints(2, 0, 1, 2, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_CENTER, com.intellij.uiDesigner.core.GridConstraints.FILL_HORIZONTAL, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_SHRINK | com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_GROW, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        jPanel.add(searchButton, new GridConstraints(2, 0, 1, 2, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         textField1 = new JTextField();
-        jPanel.add(textField1, new com.intellij.uiDesigner.core.GridConstraints(1, 0, 1, 2, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_WEST, com.intellij.uiDesigner.core.GridConstraints.FILL_HORIZONTAL, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_WANT_GROW, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(150, -1), null, 0, false));
+        jPanel.add(textField1, new GridConstraints(1, 0, 1, 2, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(150, -1), null, 0, false));
         showFilesButton = new JButton();
         showFilesButton.setText("Show Files");
-        jPanel.add(showFilesButton, new com.intellij.uiDesigner.core.GridConstraints(3, 0, 1, 2, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_CENTER, com.intellij.uiDesigner.core.GridConstraints.FILL_HORIZONTAL, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_SHRINK | com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_GROW, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        jPanel.add(showFilesButton, new GridConstraints(9, 0, 1, 2, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         ipLabel = new JLabel();
         ipLabel.setText("Label");
-        jPanel.add(ipLabel, new com.intellij.uiDesigner.core.GridConstraints(0, 0, 1, 1, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_WEST, com.intellij.uiDesigner.core.GridConstraints.FILL_NONE, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        jPanel.add(ipLabel, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         exitButton = new JButton();
         exitButton.setText("Exit");
-        jPanel.add(exitButton, new com.intellij.uiDesigner.core.GridConstraints(6, 0, 1, 2, com.intellij.uiDesigner.core.GridConstraints.ANCHOR_CENTER, com.intellij.uiDesigner.core.GridConstraints.FILL_HORIZONTAL, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_SHRINK | com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_CAN_GROW, com.intellij.uiDesigner.core.GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        jPanel.add(exitButton, new GridConstraints(11, 0, 1, 2, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        fileSearchList = new JList();
+        jPanel.add(fileSearchList, new GridConstraints(3, 0, 1, 2, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_WANT_GROW, null, new Dimension(150, 50), null, 0, false));
+        downloadButton = new JButton();
+        downloadButton.setText("Download");
+        jPanel.add(downloadButton, new GridConstraints(4, 0, 1, 2, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        neighboursText = new JTextArea();
+        neighboursText.setEditable(false);
+        jPanel.add(neighboursText, new GridConstraints(5, 0, 1, 2, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_WANT_GROW, null, new Dimension(150, 50), null, 0, false));
+        showNeighboursButton = new JButton();
+        showNeighboursButton.setText("Show neighbours");
+        jPanel.add(showNeighboursButton, new GridConstraints(6, 0, 2, 2, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        filesText = new JTextArea();
+        filesText.setEditable(false);
+        jPanel.add(filesText, new GridConstraints(8, 0, 1, 2, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_WANT_GROW, null, new Dimension(150, 50), null, 0, false));
     }
 
     /**
@@ -122,4 +182,17 @@ public class MainWindow implements IContentSearch {
     public JComponent $$$getRootComponent$$$() {
         return jPanel;
     }
+
+    private static class SearchResult {
+        String fileName;
+        InetAddress ip;
+        int port;
+
+        public SearchResult(String fileName, InetAddress ip, int port) {
+            this.fileName = fileName;
+            this.ip = ip;
+            this.port = port;
+        }
+    }
+
 }

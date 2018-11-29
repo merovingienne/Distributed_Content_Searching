@@ -26,7 +26,7 @@ public class FileClient {
             File file = new File(fileName);
 
             CloseableHttpClient client = HttpClients.createDefault();
-            try (CloseableHttpResponse response = client.execute(new HttpGet("http://" + ipAddr + ":" + port + PATH + File.separator + fileName))) {
+            try (CloseableHttpResponse response = client.execute(new HttpGet("http:/" + ipAddr + ":" + port + PATH + File.separator + fileName))) {
                 HttpEntity entity = response.getEntity();
                 if (entity != null) {
                     try (FileOutputStream outStream = new FileOutputStream(file)) {
