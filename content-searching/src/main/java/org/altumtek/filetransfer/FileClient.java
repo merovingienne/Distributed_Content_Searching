@@ -24,7 +24,7 @@ public class FileClient {
         if (Arrays.asList(FileManager.getFiles()).contains(fileName)) {
             File file = new File(fileName);
             CloseableHttpClient client = HttpClients.createDefault();
-            try (CloseableHttpResponse response = client.execute(new HttpGet("http:/" + ipAddr + ":" + port + PATH + File.separator + fileName))) {
+            try (CloseableHttpResponse response = client.execute(new HttpGet("http://" + ipAddr + ":" + port + PATH + File.separator + fileName))) {
                 logger.info("Request received from the node " + ipAddr + " : " + port + "Ready to download the file: " + fileName);
                 HttpEntity entity = response.getEntity();
                 if (entity != null) {
