@@ -98,6 +98,8 @@ public class NetworkManager {
                         joinManager.addJoinRequestToQueue((JoinRequest) request);
                     }else if (request instanceof SearchRequest) {
                         searchManager.addSearchRequest((SearchRequest) request);
+                    } else if (request instanceof LeaveRequest) {
+                        bootstrapManger.handleConnectResponse(request);
                     }
 
                 } catch (IOException e) {
@@ -186,6 +188,13 @@ public class NetworkManager {
     public void stop() {
         this.bootstrapManger.disconnectBootstrapServer(BOOTSTRAP_SERVER_IP, BOOTSTRAP_SERVER_PORT);
         //TODO off different ports
+    }
+
+    public void resetInstance() {
+        System.exit(0);
+        networkManagerSocket.disconnect();
+        networkManagerSocket.close();
+        networkManager = null;
     }
 
     public void start() {
