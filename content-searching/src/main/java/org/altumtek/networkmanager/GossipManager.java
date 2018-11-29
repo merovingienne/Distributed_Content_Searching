@@ -13,7 +13,7 @@ import java.util.stream.Collectors;
 
 public class GossipManager {
 
-    private final static int NEIGHBOUR_LIMIT = 4;
+    private final static int NEIGHBOUR_LIMIT = 3;
     private final static int GOSSIP_PERIOD = 5000;
     private final BlockingQueue<GossipRequest> gossipRequestQueue = new LinkedBlockingDeque<>();
 
@@ -23,7 +23,7 @@ public class GossipManager {
     }
 
     private synchronized void processGossipReply(GossipRequest gossipRequest) {
-        int count = 4-NetworkManager.getInstance().getRouteTable().getNeighbourList().size();
+        int count = NEIGHBOUR_LIMIT-NetworkManager.getInstance().getRouteTable().getNeighbourList().size();
         List<RouteTable.Node> newNodeList = gossipRequest.getNeighbourList().stream()
                 .filter(neighbour -> !NetworkManager.getInstance()
                         .getRouteTable().containsNode(neighbour.ip, neighbour.port))
