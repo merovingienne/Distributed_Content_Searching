@@ -5,9 +5,7 @@ import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.scene.control.Button;
-import javafx.scene.control.ListView;
-import javafx.scene.control.TextArea;
+import javafx.scene.control.*;
 import org.altumtek.filemanager.FileManager;
 import org.altumtek.networkmanager.NetworkManager;
 import org.altumtek.networkmanager.RouteTable;
@@ -15,6 +13,7 @@ import org.altumtek.networkmanager.utils.IContentSearch;
 
 import java.net.InetAddress;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.ResourceBundle;
 
@@ -45,7 +44,18 @@ public class GUIController implements Initializable, IContentSearch {
     private ListView<String> neighboursList;
 
     @FXML
-    private ListView<String> filesList;
+    private ListView<String> myFilesList;
+
+    @FXML
+    private Button setIP;
+
+    @FXML
+    private TextField ipInput;
+
+    @FXML
+    private Label ipPortOutput;
+
+    private ArrayList<String> receivedFileList;
 
     @FXML
     void search(ActionEvent event) {
@@ -55,9 +65,11 @@ public class GUIController implements Initializable, IContentSearch {
         System.out.println(search);
         NetworkManager.getInstance().search(search, GUIController.this);
 
+        if (receivedFileList != null){
+            receivedFileList.clear();
+        }
         ListView<String> list = new ListView<String>();
-        ObservableList<String> items = FXCollections.observableArrayList (
-                "Single", "Double", "Suite", "Family App");
+        ObservableList<String> items = FXCollections.observableArrayList (receivedFileList);
         list.setItems(items);
     }
 
@@ -79,8 +91,21 @@ public class GUIController implements Initializable, IContentSearch {
             files.add(file);
         }
 
-        filesList.setItems(files);
+        myFilesList.setItems(files);
     }
+
+    @FXML
+    void setIP(ActionEvent event){
+        String IP = ipInput.getText();
+
+        NetworkManager.getInstance(IP).start();
+
+        ipPortOutput.setText(NetworkManager.getInstance().getIpPort());
+
+        setIP.setDisable(true);
+
+    }
+
 
 
     @Override

@@ -3,10 +3,13 @@ package org.altumtek.gui;/**
  */
 
 import javafx.application.Application;
+import javafx.application.Platform;
+import javafx.event.EventHandler;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
+import javafx.stage.WindowEvent;
 import org.altumtek.networkmanager.NetworkManager;
 import org.altumtek.networkmanager.utils.IContentSearch;
 
@@ -25,8 +28,6 @@ public class GUI extends Application {
     @Override
     public void start(Stage primaryStage) throws IOException {
 
-        NetworkManager.getInstance().start();
-
         Parent root = FXMLLoader.load(getClass().getClassLoader().getResource("GUI.fxml"));
 
         Scene scene = new Scene(root);
@@ -38,6 +39,10 @@ public class GUI extends Application {
         primaryStage.setScene(scene);
         primaryStage.setTitle("Distributed Search App");
         primaryStage.show();
+
+        primaryStage.setOnCloseRequest(event -> {
+            NetworkManager.getInstance().stop();
+        });
     }
 
 }
