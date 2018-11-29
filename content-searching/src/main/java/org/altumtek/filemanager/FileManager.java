@@ -11,7 +11,7 @@ public class FileManager {
             "glee",
             "the-vampire-diarie",
             "king-arthur",
-            "windows-xP",
+            "windows-xp",
             "harry-potter",
             "kung-fu-panda",
             "lady-gaga",
