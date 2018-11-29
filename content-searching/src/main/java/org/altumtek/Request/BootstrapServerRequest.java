@@ -24,10 +24,10 @@ public class BootstrapServerRequest extends BaseRequest{
             message = String.format(" REG %s %d %s", this.senderIP.getHostAddress(), this.senderPort,
                     NetworkManager.getInstance().getUserName());
         } else if (type == RequestType.UNREG) {
-            this.message="".concat(this.type.name())
-                    .concat(this.senderIP.getHostAddress())
-                    .concat(String.valueOf(this.senderPort))
-                    .concat(NetworkManager.getInstance().getUserName());
+            this.message="".concat(serializationUtil(this.type.name()))
+                    .concat(serializationUtil(this.senderIP.getHostAddress()))
+                    .concat(serializationUtil(String.valueOf(this.senderPort)))
+                    .concat(serializationUtil(NetworkManager.getInstance().getUserName()));
 //            message = String.format("UNREG %s %d %s", this.senderIP, this.senderPort,
 //                    NetworkManager.getInstance().getUserName());
         } else {
@@ -53,10 +53,10 @@ public class BootstrapServerRequest extends BaseRequest{
                     e.printStackTrace();
                 }
             }
-        } else if(command.equals(RequestType.UNROK)) {
+        } else if(command.equals(RequestType.UNROK.name())) {
             int value = Integer.parseInt(tokens.nextToken());
             if (value == 0) {
-                this.type = RequestType.LEAVEOK;
+                this.type = RequestType.UNROK;
             } else {
                 this.type = RequestType.ERROR;
             }

@@ -188,6 +188,13 @@ public class NetworkManager {
         //TODO off different ports
     }
 
+    public void resetInstance() {
+        System.exit(0);
+        networkManagerSocket.disconnect();
+        networkManagerSocket.close();
+        networkManager = null;
+    }
+
     public void start() {
         this.init();
     }
