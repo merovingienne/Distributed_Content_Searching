@@ -68,6 +68,9 @@
                         <goals>
                             <goal>repackage</goal>
                         </goals>
+                        <configuration>
+                            <mainClass>org.altumtek.Main</mainClass>
+                        </configuration>
                     </execution>
                 </executions>
             </plugin>
