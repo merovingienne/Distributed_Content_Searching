@@ -1,6 +1,10 @@
 package org.altumtek.networkmanager;
 
-import org.altumtek.Request.*;
+import org.altumtek.Request.BaseRequest;
+import org.altumtek.Request.BootstrapServerRequest;
+import org.altumtek.Request.RequestType;
+import org.altumtek.Request.RequestType;
+import org.altumtek.Request.LeaveRequest;
 
 import java.net.InetAddress;
 
